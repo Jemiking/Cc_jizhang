@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - Material 3 记账APP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            color: #1f1f1f;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            background-color: #1f1f1f;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 16px;
+            font-size: 12px;
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            background-color: #4e2a84;
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        
+        /* Material 3 卡片 */
+        .card {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .bottom-nav-item.active {
+            color: #4e2a84;
+        }
+        
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* 内容区域 */
+        .content {
+            padding: 16px;
+            margin-bottom: 80px;
+        }
+        
+        /* 设置项 */
+        .setting-group {
+            margin-bottom: 8px;
+        }
+        
+        .setting-header {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            margin-left: 4px;
+        }
+        
+        .setting-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background-color: white;
+            border-radius: 12px;
+            margin-bottom: 2px;
+        }
+        
+        .setting-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 16px;
+            color: #4e2a84;
+        }
+        
+        .setting-text {
+            flex: 1;
+        }
+        
+        .setting-title {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .setting-description {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .setting-action {
+            color: #666;
+        }
+        
+        /* 开关 */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 32px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e0e0e0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4e2a84;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* 用户资料 */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 24px 16px;
+        }
+        
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 32px;
+            background-color: #4e2a84;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            margin-right: 16px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .user-email {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .edit-profile {
+            color: #4e2a84;
+        }
+        
+        /* 版本信息 */
+        .version-info {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div>9:41</div>
+        <div>
+            <span class="mr-2"><i class="fas fa-wifi"></i></span>
+            <span class="mr-2"><i class="fas fa-signal"></i></span>
+            <span><i class="fas fa-battery-three-quarters"></i></span>
+        </div>
+    </div>
+    
+    <!-- 导航栏 -->
+    <div class="navbar">
+        <div class="text-lg font-medium">设置</div>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 用户资料 -->
+        <div class="card">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">张小明</div>
+                    <div class="user-email">xiaoming@example.com</div>
+                </div>
+                <div class="edit-profile">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 账户设置 -->
+        <div class="setting-group">
+            <div class="setting-header">账户设置</div>
+            
+            <div class="card">
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">账户管理</div>
+                        <div class="setting-description">管理您的银行卡、支付宝、微信等账户</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">分类管理</div>
+                        <div class="setting-description">自定义交易分类和图标</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">安全与隐私</div>
+                        <div class="setting-description">密码设置、隐私选项</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">备份与恢复</div>
+                        <div class="setting-description">将数据备份到云端或本地</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 偏好设置 -->
+        <div class="setting-group">
+            <div class="setting-header">偏好设置</div>
+            
+            <div class="card">
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">主题设置</div>
+                        <div class="setting-description">切换浅色/深色主题</div>
+                    </div>
+                    <div class="setting-action">
+                        <label class="toggle">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">通知提醒</div>
+                        <div class="setting-description">预算提醒、账单提醒</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">语言</div>
+                        <div class="setting-description">简体中文</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">货币设置</div>
+                        <div class="setting-description">人民币 (¥)</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 其他 -->
+        <div class="setting-group">
+            <div class="setting-header">其他</div>
+            
+            <div class="card">
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">评价应用</div>
+                        <div class="setting-description">喜欢这个应用？给我们评分吧</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">帮助与反馈</div>
+                        <div class="setting-description">常见问题解答与问题反馈</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="setting-text">
+                        <div class="setting-title">关于</div>
+                        <div class="setting-description">应用信息、版本、条款</div>
+                    </div>
+                    <div class="setting-action">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 版本信息 -->
+        <div class="version-info">
+            智能记账 v1.0.0
+        </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>交易</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>统计</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>预算</span>
+        </div>
+        <div class="bottom-nav-item active">
+            <i class="fas fa-cog"></i>
+            <span>设置</span>
+        </div>
+    </div>
+</body>
+</html>

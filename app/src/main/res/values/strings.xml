@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CC记账</string>
+    
+    <!-- 通用 -->
+    <string name="back">返回</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="share">分享</string>
+    <string name="confirm">确认</string>
+    <string name="more_options">更多选项</string>
+    <string name="details">详情</string>
+    <string name="generate">生成</string>
+    
+    <!-- 账户相关 -->
+    <string name="account">账户</string>
+    <string name="accounts">账户</string>
+    <string name="account_required">请选择账户</string>
+    <string name="account_owner">账户所有者</string>
+    
+    <!-- 分类相关 -->
+    <string name="category">分类</string>
+    <string name="categories">分类</string>
+    <string name="category_required">请选择分类</string>
+    
+    <!-- 交易相关 -->
+    <string name="expense">支出</string>
+    <string name="income">收入</string>
+    <string name="amount">金额</string>
+    <string name="valid_amount_required">请输入有效金额</string>
+    <string name="description">描述</string>
+    <string name="description_required">请输入描述</string>
+    <string name="notes">备注</string>
+    <string name="date">日期</string>
+    
+    <!-- 预算相关 -->
+    <string name="budget">预算</string>
+    <string name="budgeted">预算金额</string>
+    <string name="actual">实际金额</string>
+    <string name="difference">差额</string>
+    
+    <!-- 日期相关 -->
+    <string name="start_date">开始日期</string>
+    <string name="end_date">结束日期</string>
+    <string name="date_range">日期范围</string>
+    <string name="date_range_error">结束日期必须晚于开始日期</string>
+    <string name="select_start_date">选择开始日期</string>
+    <string name="select_end_date">选择结束日期</string>
+    
+    <!-- 定期交易相关 -->
+    <string name="recurring_transactions">定期交易</string>
+    <string name="recurring_transaction_details">定期交易详情</string>
+    <string name="add_recurring_transaction">添加定期交易</string>
+    <string name="edit_recurring_transaction">编辑定期交易</string>
+    <string name="delete_recurring_transaction">删除定期交易</string>
+    <string name="delete_recurring_transaction_confirmation">确定要删除定期交易"%1$s"吗？</string>
+    <string name="next_occurrence">下次执行日期</string>
+    <string name="frequency">频率</string>
+    <string name="no_recurring_transactions">没有定期交易</string>
+    <string name="no_recurring_transactions_message">点击下方按钮添加定期交易</string>
+    <string name="transaction_not_found">交易不存在</string>
+    <string name="transaction_not_found_message">该交易可能已被删除</string>
+    <string name="day_of_week">星期几</string>
+    <string name="day_of_week_hint">请选择每周重复的星期几</string>
+    <string name="day_of_month">日期</string>
+    <string name="day_of_month_hint">请选择每月重复的日期（1-31）</string>
+    <string name="daily">每天</string>
+    <string name="weekly">每周</string>
+    <string name="monthly">每月</string>
+    <string name="yearly">每年</string>
+    
+    <!-- 投资相关 -->
+    <string name="investments">投资</string>
+    <string name="investment_details">投资详情</string>
+    <string name="add_investment">添加投资</string>
+    <string name="edit_investment">编辑投资</string>
+    <string name="delete_investment">删除投资</string>
+    <string name="delete_investment_confirmation">确定要删除投资"%1$s"吗？</string>
+    <string name="no_investments">没有投资记录</string>
+    <string name="no_investments_message">点击下方按钮添加投资记录</string>
+    <string name="investment_not_found">投资不存在</string>
+    <string name="investment_not_found_message">该投资可能已被删除</string>
+    <string name="investment_type">投资类型</string>
+    <string name="initial_amount">初始金额</string>
+    <string name="current_value">当前价值</string>
+    <string name="return_rate">收益率</string>
+    <string name="purchase_date">购买日期</string>
+    <string name="maturity_date">到期日期</string>
+    <string name="projected_returns">预计收益</string>
+    <string name="one_year_projection">一年后</string>
+    <string name="three_year_projection">三年后</string>
+    <string name="five_year_projection">五年后</string>
+    <string name="gain">收益</string>
+    <string name="loss">亏损</string>
+    <string name="basic_info">基本信息</string>
+    <string name="risk_level">风险等级</string>
+    <string name="risk_low">低风险</string>
+    <string name="risk_medium">中风险</string>
+    <string name="risk_high">高风险</string>
+    <string name="risk_unknown">未知风险</string>
+    <string name="stock">股票</string>
+    <string name="fund">基金</string>
+    <string name="bond">债券</string>
+    <string name="deposit">定期存款</string>
+    <string name="other_investment">其他投资</string>
+    
+    <!-- 财务报告相关 -->
+    <string name="financial_reports">财务报告</string>
+    <string name="financial_report">财务报告</string>
+    <string name="generate_report">生成报告</string>
+    <string name="delete_report">删除报告</string>
+    <string name="delete_report_confirmation">确定要删除报告"%1$s"吗？</string>
+    <string name="no_reports">没有财务报告</string>
+    <string name="no_reports_message">点击下方按钮生成财务报告</string>
+    <string name="report_not_found">报告不存在</string>
+    <string name="report_not_found_message">该报告可能已被删除</string>
+    <string name="report_title">报告标题</string>
+    <string name="title_required">请输入标题</string>
+    <string name="report_description">报告描述</string>
+    <string name="report_period">报告周期</string>
+    <string name="report_content">报告内容</string>
+    <string name="monthly_report">月度报告</string>
+    <string name="quarterly_report">季度报告</string>
+    <string name="yearly_report">年度报告</string>
+    <string name="custom_period">自定义周期</string>
+    <string name="generating_report">正在生成报告…</string>
+    <string name="generated_on">生成日期</string>
+    <string name="include_income_analysis">包含收入分析</string>
+    <string name="include_expense_analysis">包含支出分析</string>
+    <string name="include_category_breakdown">包含分类明细</string>
+    <string name="include_account_balances">包含账户余额</string>
+    <string name="include_budget_comparison">包含预算对比</string>
+    <string name="include_financial_health">包含财务健康指标</string>
+    
+    <!-- 财务报告内容 -->
+    <string name="financial_overview">财务概览</string>
+    <string name="total_income">总收入</string>
+    <string name="total_expense">总支出</string>
+    <string name="net_income">净收入</string>
+    <string name="savings_rate">储蓄率</string>
+    <string name="income_analysis">收入分析</string>
+    <string name="expense_analysis">支出分析</string>
+    <string name="account_balances">账户余额</string>
+    <string name="budget_comparison">预算比较</string>
+    <string name="financial_health">财务健康</string>
+    
+    <!-- 家庭成员相关 -->
+    <string name="family_members">家庭成员</string>
+    <string name="family_member">家庭成员</string>
+    <string name="add_family_member">添加家庭成员</string>
+    <string name="edit_family_member">编辑家庭成员</string>
+    <string name="delete_family_member">删除家庭成员</string>
+    <string name="delete_family_member_confirmation">确定要删除家庭成员"%1$s"吗？</string>
+    <string name="no_family_members">没有家庭成员</string>
+    <string name="no_family_members_message">点击下方按钮添加家庭成员</string>
+    <string name="permissions">权限设置</string>
+    <string name="name">姓名</string>
+    <string name="name_required">请输入姓名</string>
+    <string name="email">邮箱</string>
+    <string name="invalid_email">请输入有效的邮箱地址</string>
+    <string name="phone">电话</string>
+    <string name="invalid_phone">请输入有效的电话号码</string>
+    <string name="spending_limit">支出限额</string>
+    <string name="spending_limit_hint">设置成员可支配的最大金额（0表示无限制）</string>
+    <string name="can_edit_transactions">允许编辑交易记录</string>
+    <string name="can_view_all_transactions">允许查看所有交易记录</string>
+    <string name="family_member_permissions_info">家庭成员可以根据其权限进行交易和查看记录，账户所有者拥有所有权限。</string>
+
+    <string name="backup_failed">备份失败</string>
+
+    <!-- Recurring Transaction Add/Edit Screen -->
+    <string name="transfer">转账</string>
+    <string name="select_from_account">选择付款账户</string>
+    <string name="from_account">付款账户</string>
+    <string name="select_to_account">选择收款账户</string>
+    <string name="to_account">收款账户</string>
+    <string name="select_category">选择分类</string>
+    <string name="bi_weekly">每两周</string>
+    <string name="quarterly">每季度</string>
+    <string name="custom_days">自定义天数</string>
+    <string name="unknown">未知</string>
+    <string name="custom_days_interval">自定义间隔 (天)</string>
+    <string name="set_end_date">设置结束日期</string>
+    <string name="max_executions">最大执行次数</string>
+    <string name="notify_before_execution">执行前通知</string>
+    <string name="notify_days_before">提前通知天数</string>
+
+    <!-- Investment Add/Edit Screen -->
+    <string name="valid_percentage_required">请输入有效的百分比</string>
+    <string name="return_rate_hint">例如: 3.5</string>
+    <string name="no_associated_account">无关联账户</string>
+    <string name="has_maturity_date">设置到期日</string>
+</resources>

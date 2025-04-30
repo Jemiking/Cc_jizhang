@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预算管理 - Material 3 记账APP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            color: #1f1f1f;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            background-color: #1f1f1f;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 16px;
+            font-size: 12px;
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            background-color: #4e2a84;
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        
+        /* Material 3 卡片 */
+        .card {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .bottom-nav-item.active {
+            color: #4e2a84;
+        }
+        
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* 悬浮按钮 */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: #4e2a84;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 24px;
+        }
+        
+        /* 内容区域 */
+        .content {
+            padding: 16px;
+            margin-bottom: 80px;
+        }
+        
+        /* 月份选择器 */
+        .month-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .month-selector .current-month {
+            font-weight: 500;
+            font-size: 18px;
+        }
+        
+        .month-selector .arrow {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        
+        /* 预算进度卡片 */
+        .budget-card {
+            position: relative;
+            margin-bottom: 16px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 16px;
+        }
+        
+        .budget-card:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+        
+        .budget-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 16px;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .budget-progress {
+            flex: 1;
+        }
+        
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .budget-name {
+            font-weight: 500;
+        }
+        
+        .budget-value {
+            font-weight: 500;
+        }
+        
+        .budget-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .budget-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .budget-status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 添加预算按钮 */
+        .add-budget-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background-color: #f0f0f0;
+            border-radius: 12px;
+            color: #4e2a84;
+            font-weight: 500;
+            margin-top: 16px;
+        }
+        
+        .add-budget-btn i {
+            margin-right: 8px;
+        }
+        
+        /* 预算摘要 */
+        .budget-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .summary-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .summary-value {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .summary-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 月份选择器 */
+        .month-tabs {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            white-space: nowrap;
+        }
+        
+        .month-tab {
+            padding: 8px 16px;
+            margin-right: 8px;
+            border-radius: 20px;
+            background-color: #f0f0f0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .month-tab.active {
+            background-color: #4e2a84;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div>9:41</div>
+        <div>
+            <span class="mr-2"><i class="fas fa-wifi"></i></span>
+            <span class="mr-2"><i class="fas fa-signal"></i></span>
+            <span><i class="fas fa-battery-three-quarters"></i></span>
+        </div>
+    </div>
+    
+    <!-- 导航栏 -->
+    <div class="navbar">
+        <div class="text-lg font-medium">预算管理</div>
+        <div>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 月份选择器 -->
+        <div class="month-tabs">
+            <div class="month-tab">1月</div>
+            <div class="month-tab">2月</div>
+            <div class="month-tab">3月</div>
+            <div class="month-tab active">4月</div>
+            <div class="month-tab">5月</div>
+            <div class="month-tab">6月</div>
+        </div>
+        
+        <!-- 预算摘要 -->
+        <div class="card">
+            <div class="budget-summary">
+                <div class="summary-item">
+                    <div class="summary-value">¥7,500</div>
+                    <div class="summary-label">总预算</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">¥4,114</div>
+                    <div class="summary-label">已使用</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">¥3,386</div>
+                    <div class="summary-label">剩余</div>
+                </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-4">
+                <div class="bg-purple-600 h-2 rounded-full" style="width: 55%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <div>已使用 55%</div>
+                <div>剩余 45%</div>
+            </div>
+        </div>
+        
+        <!-- 预算列表 -->
+        <div class="card">
+            <div class="text-sm text-gray-500 mb-4">预算详情</div>
+            
+            <!-- 食品杂货预算 -->
+            <div class="budget-card">
+                <div class="flex">
+                    <div class="budget-icon" style="background-color: #4e2a84;">
+                        <i class="fas fa-shopping-basket"></i>
+                    </div>
+                    <div class="budget-progress">
+                        <div class="budget-header">
+                            <div class="budget-name">食品杂货</div>
+                            <div class="budget-value">¥1,200 / ¥2,000</div>
+                        </div>
+                        <div class="budget-bar">
+                            <div class="budget-fill" style="width: 60%; background-color: #4e2a84;"></div>
+                        </div>
+                        <div class="budget-status">
+                            <div>已使用 60%</div>
+                            <div>剩余 ¥800</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 交通预算 -->
+            <div class="budget-card">
+                <div class="flex">
+                    <div class="budget-icon" style="background-color: #43a047;">
+                        <i class="fas fa-bus"></i>
+                    </div>
+                    <div class="budget-progress">
+                        <div class="budget-header">
+                            <div class="budget-name">交通出行</div>
+                            <div class="budget-value">¥450 / ¥800</div>
+                        </div>
+                        <div class="budget-bar">
+                            <div class="budget-fill" style="width: 56%; background-color: #43a047;"></div>
+                        </div>
+                        <div class="budget-status">
+                            <div>已使用 56%</div>
+                            <div>剩余 ¥350</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 娱乐预算 -->
+            <div class="budget-card">
+                <div class="flex">
+                    <div class="budget-icon" style="background-color: #fb8c00;">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="budget-progress">
+                        <div class="budget-header">
+                            <div class="budget-name">娱乐休闲</div>
+                            <div class="budget-value">¥850 / ¥1,000</div>
+                        </div>
+                        <div class="budget-bar">
+                            <div class="budget-fill" style="width: 85%; background-color: #fb8c00;"></div>
+                        </div>
+                        <div class="budget-status">
+                            <div>已使用 85%</div>
+                            <div>剩余 ¥150</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 住房预算 -->
+            <div class="budget-card">
+                <div class="flex">
+                    <div class="budget-icon" style="background-color: #5c6bc0;">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="budget-progress">
+                        <div class="budget-header">
+                            <div class="budget-name">住房水电</div>
+                            <div class="budget-value">¥1,200 / ¥2,500</div>
+                        </div>
+                        <div class="budget-bar">
+                            <div class="budget-fill" style="width: 48%; background-color: #5c6bc0;"></div>
+                        </div>
+                        <div class="budget-status">
+                            <div>已使用 48%</div>
+                            <div>剩余 ¥1,300</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 服装预算 -->
+            <div class="budget-card">
+                <div class="flex">
+                    <div class="budget-icon" style="background-color: #ec407a;">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <div class="budget-progress">
+                        <div class="budget-header">
+                            <div class="budget-name">服装鞋包</div>
+                            <div class="budget-value">¥414 / ¥1,200</div>
+                        </div>
+                        <div class="budget-bar">
+                            <div class="budget-fill" style="width: 34%; background-color: #ec407a;"></div>
+                        </div>
+                        <div class="budget-status">
+                            <div>已使用 34%</div>
+                            <div>剩余 ¥786</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加预算按钮 -->
+            <div class="add-budget-btn">
+                <i class="fas fa-plus"></i>
+                <span>添加新预算</span>
+            </div>
+        </div>
+        
+        <!-- 预算技巧 -->
+        <div class="card">
+            <div class="text-sm text-gray-500 mb-2">预算小贴士</div>
+            <div class="text-sm">
+                <p class="mb-2">• 使用50/30/20法则：50%用于基本生活开支，30%用于个人支出，20%用于储蓄和投资。</p>
+                <p class="mb-2">• 设置好预算目标后，定期检查和调整，确保您的预算计划切实可行。</p>
+                <p>• 适当分配"意外开支"预算，以应对不可预见的紧急情况。</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 悬浮按钮 -->
+    <div class="fab">
+        <i class="fas fa-plus"></i>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>交易</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>统计</span>
+        </div>
+        <div class="bottom-nav-item active">
+            <i class="fas fa-wallet"></i>
+            <span>预算</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-cog"></i>
+            <span>设置</span>
+        </div>
+    </div>
+</body>
+</html>

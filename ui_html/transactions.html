@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易历史 - Material 3 记账APP</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            color: #1f1f1f;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            background-color: #1f1f1f;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 16px;
+            font-size: 12px;
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            background-color: #4e2a84;
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+        
+        /* Material 3 卡片 */
+        .card {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+        
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .bottom-nav-item.active {
+            color: #4e2a84;
+        }
+        
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        /* 悬浮按钮 */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: #4e2a84;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 24px;
+        }
+        
+        /* 内容区域 */
+        .content {
+            padding: 16px;
+            margin-bottom: 80px;
+        }
+        
+        /* 交易记录 */
+        .transaction {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background-color: #eee8f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            color: #4e2a84;
+        }
+        
+        .transaction-expense {
+            color: #e53935;
+        }
+        
+        .transaction-income {
+            color: #43a047;
+        }
+        
+        /* 筛选选项 */
+        .filter-options {
+            display: flex;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 8px;
+        }
+        
+        .filter-option {
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 6px 16px;
+            margin-right: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .filter-option.active {
+            background-color: #4e2a84;
+            color: white;
+        }
+        
+        /* 搜索框 */
+        .search-bar {
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .search-bar i {
+            color: #666;
+            margin-right: 8px;
+        }
+        
+        .search-bar input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        /* 日期分组 */
+        .date-group {
+            margin-bottom: 16px;
+        }
+        
+        .date-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .date-day {
+            font-weight: 500;
+        }
+        
+        .date-summary {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div>9:41</div>
+        <div>
+            <span class="mr-2"><i class="fas fa-wifi"></i></span>
+            <span class="mr-2"><i class="fas fa-signal"></i></span>
+            <span><i class="fas fa-battery-three-quarters"></i></span>
+        </div>
+    </div>
+    
+    <!-- 导航栏 -->
+    <div class="navbar">
+        <div class="text-lg font-medium">交易历史</div>
+        <div>
+            <i class="fas fa-filter"></i>
+        </div>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="搜索交易记录">
+        </div>
+        
+        <!-- 筛选选项 -->
+        <div class="filter-options">
+            <div class="filter-option active">全部</div>
+            <div class="filter-option">支出</div>
+            <div class="filter-option">收入</div>
+            <div class="filter-option">餐饮</div>
+            <div class="filter-option">购物</div>
+            <div class="filter-option">交通</div>
+            <div class="filter-option">娱乐</div>
+        </div>
+        
+        <!-- 今日交易 -->
+        <div class="date-group">
+            <div class="date-header">
+                <div class="date-day">今天</div>
+                <div class="date-summary">支出: ¥381.50 | 收入: ¥0.00</div>
+            </div>
+            
+            <div class="card">
+                <!-- 交易项目 -->
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">午餐</div>
+                            <div class="transaction-expense font-medium">-¥ 55.00</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>餐饮</div>
+                            <div>12:30</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-coffee"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">咖啡</div>
+                            <div class="transaction-expense font-medium">-¥ 26.00</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>餐饮</div>
+                            <div>10:15</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 昨日交易 -->
+        <div class="date-group">
+            <div class="date-header">
+                <div class="date-day">昨天</div>
+                <div class="date-summary">支出: ¥652.50 | 收入: ¥0.00</div>
+            </div>
+            
+            <div class="card">
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">超市购物</div>
+                            <div class="transaction-expense font-medium">-¥ 326.50</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>食品杂货</div>
+                            <div>18:15</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-bus"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">打车</div>
+                            <div class="transaction-expense font-medium">-¥ 45.00</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>交通</div>
+                            <div>17:30</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">网上购物</div>
+                            <div class="transaction-expense font-medium">-¥ 281.00</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>购物</div>
+                            <div>14:20</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 4月1日交易 -->
+        <div class="date-group">
+            <div class="date-header">
+                <div class="date-day">4月1日</div>
+                <div class="date-summary">支出: ¥150.00 | 收入: ¥12,000.00</div>
+            </div>
+            
+            <div class="card">
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">工资</div>
+                            <div class="transaction-income font-medium">+¥ 12,000.00</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>收入</div>
+                            <div>09:00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">游戏订阅</div>
+                            <div class="transaction-expense font-medium">-¥ 98.00</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>娱乐</div>
+                            <div>08:30</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transaction">
+                    <div class="transaction-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <div class="font-medium">视频会员</div>
+                            <div class="transaction-expense font-medium">-¥ 52.00</div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <div>娱乐</div>
+                            <div>08:30</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 悬浮按钮 -->
+    <div class="fab">
+        <i class="fas fa-plus"></i>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </div>
+        <div class="bottom-nav-item active">
+            <i class="fas fa-exchange-alt"></i>
+            <span>交易</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>统计</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>预算</span>
+        </div>
+        <div class="bottom-nav-item">
+            <i class="fas fa-cog"></i>
+            <span>设置</span>
+        </div>
+    </div>
+</body>
+</html>

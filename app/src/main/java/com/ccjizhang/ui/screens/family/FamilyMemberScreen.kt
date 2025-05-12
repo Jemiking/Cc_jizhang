@@ -20,6 +20,9 @@ import com.ccjizhang.data.model.FamilyMember
 import com.ccjizhang.ui.common.EmptyContent
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.components.ConfirmDeleteDialog
 import com.ccjizhang.ui.viewmodels.FamilyMemberViewModel
 
@@ -34,26 +37,20 @@ fun FamilyMemberScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedMember by remember { mutableStateOf<FamilyMember?>(null) }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(R.string.family_members),
-                canNavigateBack = true,
-                onNavigateBack = { navController.navigateUp() }
+
+    UnifiedScaffold(
+        title = stringResource(R.string.family_members),
+        showBackButton = true,
+        onBackClick = { navController.navigateUp() },
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.add_family_member),
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddFamilyMember,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_family_member)
-                )
-            }
-        }
+        onFloatingActionButtonClick = onNavigateToAddFamilyMember
     ) { innerPadding ->
         when {
             uiState.isLoading -> {
@@ -96,7 +93,7 @@ fun FamilyMemberScreen(
             }
         }
     }
-    
+
     if (showDeleteDialog && selectedMember != null) {
         ConfirmDeleteDialog(
             title = stringResource(R.string.delete_family_member),
@@ -124,13 +121,10 @@ fun FamilyMemberItem(
     onMemberClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    Card(
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onMemberClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            .clickable(onClick = onMemberClick)
     ) {
         Row(
             modifier = Modifier
@@ -143,9 +137,9 @@ fun FamilyMemberItem(
                 contentDescription = null,
                 tint = if (member.isOwner) MaterialTheme.colorScheme.primary else LocalContentColor.current
             )
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = member.name,
@@ -153,15 +147,15 @@ fun FamilyMemberItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Text(
-                    text = if (member.isOwner) 
-                        stringResource(R.string.account_owner) 
-                    else 
+                    text = if (member.isOwner)
+                        stringResource(R.string.account_owner)
+                    else
                         stringResource(R.string.family_member),
                     style = MaterialTheme.typography.bodySmall
                 )
-                
+
                 if (member.email.isNotBlank()) {
                     Text(
                         text = member.email,
@@ -169,7 +163,7 @@ fun FamilyMemberItem(
                     )
                 }
             }
-            
+
             if (!member.isOwner) {
                 IconButton(onClick = onDeleteClick) {
                     Icon(
@@ -180,4 +174,4 @@ fun FamilyMemberItem(
             }
         }
     }
-} 
+}

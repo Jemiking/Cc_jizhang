@@ -18,6 +18,9 @@ import com.ccjizhang.R
 import com.ccjizhang.data.model.FamilyMember
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.FamilyMemberViewModel
 import androidx.navigation.NavHostController
 
@@ -31,7 +34,7 @@ fun FamilyMemberAddEditScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isEditMode = memberId > 0
-    
+
     // Form state
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -40,19 +43,19 @@ fun FamilyMemberAddEditScreen(
     var canEditTransactions by remember { mutableStateOf(false) }
     var canViewAllTransactions by remember { mutableStateOf(true) }
     var spendingLimit by remember { mutableStateOf("") }
-    
+
     // Error states
     var nameError by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf(false) }
     var phoneError by remember { mutableStateOf(false) }
-    
+
     // Initialize form if in edit mode
     LaunchedEffect(memberId) {
         if (isEditMode) {
             viewModel.loadFamilyMember(memberId)
         }
     }
-    
+
     // Update form when member is loaded
     LaunchedEffect(uiState.editingMember) {
         uiState.editingMember?.let { member ->
@@ -65,24 +68,26 @@ fun FamilyMemberAddEditScreen(
             spendingLimit = if (member.spendingLimit > 0) member.spendingLimit.toString() else ""
         }
     }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(
-                    if (isEditMode) R.string.edit_family_member 
-                    else R.string.add_family_member
-                ),
-                canNavigateBack = true,
-                onNavigateBack = { navController.navigateUp() }
+
+    UnifiedScaffold(
+        title = stringResource(
+            if (isEditMode) R.string.edit_family_member
+            else R.string.add_family_member
+        ),
+        showBackButton = true,
+        onBackClick = { navController.navigateUp() },
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = stringResource(R.string.save),
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
+        onFloatingActionButtonClick = {
                     // Validate form
                     nameError = name.isBlank()
-                    
+
                     if (!nameError) {
                         val member = FamilyMember(
                             id = if (isEditMode) memberId else 0,
@@ -97,24 +102,16 @@ fun FamilyMemberAddEditScreen(
                             canViewAllTransactions = canViewAllTransactions,
                             spendingLimit = spendingLimit.toDoubleOrNull() ?: 0.0
                         )
-                        
+
                         if (isEditMode) {
                             viewModel.updateFamilyMember(member)
                         } else {
                             viewModel.addFamilyMember(member)
                         }
-                        
+
                         onSaveSuccess()
                     }
-                },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Save,
-                    contentDescription = stringResource(R.string.save)
-                )
-            }
-        }
+                }
     ) { innerPadding ->
         if (uiState.isLoading) {
             LoadingContent(
@@ -145,7 +142,7 @@ fun FamilyMemberAddEditScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
-                
+
                 // Email
                 OutlinedTextField(
                     value = email,
@@ -163,7 +160,7 @@ fun FamilyMemberAddEditScreen(
                         imeAction = ImeAction.Next
                     )
                 )
-                
+
                 // Phone
                 OutlinedTextField(
                     value = phone,
@@ -181,11 +178,11 @@ fun FamilyMemberAddEditScreen(
                         imeAction = ImeAction.Next
                     )
                 )
-                
+
                 // Spending limit
                 OutlinedTextField(
                     value = spendingLimit,
-                    onValueChange = { 
+                    onValueChange = {
                         if (it.isEmpty() || it.toDoubleOrNull() != null) {
                             spendingLimit = it
                         }
@@ -198,13 +195,10 @@ fun FamilyMemberAddEditScreen(
                     ),
                     supportingText = { Text(stringResource(R.string.spending_limit_hint)) }
                 )
-                
+
                 // Permissions section
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                SecondaryCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
@@ -216,7 +210,7 @@ fun FamilyMemberAddEditScreen(
                             text = stringResource(R.string.permissions),
                             style = MaterialTheme.typography.titleMedium
                         )
-                        
+
                         // Is Owner
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -225,7 +219,7 @@ fun FamilyMemberAddEditScreen(
                             Text(stringResource(R.string.account_owner))
                             Switch(
                                 checked = isOwner,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     isOwner = it
                                     // If owner, enable all permissions
                                     if (it) {
@@ -236,7 +230,7 @@ fun FamilyMemberAddEditScreen(
                                 enabled = !isEditMode || !uiState.editingMember?.isOwner!! // Can't change owner status of existing owner
                             )
                         }
-                        
+
                         // Can edit transactions
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -249,7 +243,7 @@ fun FamilyMemberAddEditScreen(
                                 enabled = !isOwner // Owner always has edit rights
                             )
                         }
-                        
+
                         // Can view all transactions
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -264,7 +258,7 @@ fun FamilyMemberAddEditScreen(
                         }
                     }
                 }
-                
+
                 // Info text
                 Text(
                     text = stringResource(R.string.family_member_permissions_info),
@@ -274,4 +268,4 @@ fun FamilyMemberAddEditScreen(
             }
         }
     }
-} 
+}

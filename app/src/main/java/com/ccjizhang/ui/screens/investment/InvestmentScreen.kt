@@ -22,6 +22,9 @@ import com.ccjizhang.data.model.Investment
 import com.ccjizhang.ui.common.EmptyContent
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.components.ConfirmDeleteDialog
 import com.ccjizhang.ui.viewmodels.InvestmentViewModel
 import java.text.NumberFormat
@@ -44,29 +47,23 @@ fun InvestmentScreen(
     // Collect individual state flows from the ViewModel
     val isLoading by viewModel.isLoading.collectAsState()
     val investments by viewModel.filteredInvestments.collectAsState()
-    
+
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedInvestment by remember { mutableStateOf<Investment?>(null) }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(R.string.investments),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack
+
+    UnifiedScaffold(
+        title = stringResource(R.string.investments),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.add_investment),
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddInvestment,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_investment)
-                )
-            }
-        }
+        onFloatingActionButtonClick = onNavigateToAddInvestment
     ) { innerPadding ->
         when {
             isLoading -> {
@@ -110,7 +107,7 @@ fun InvestmentScreen(
             }
         }
     }
-    
+
     if (showDeleteDialog && selectedInvestment != null) {
         ConfirmDeleteDialog(
             title = stringResource(R.string.delete_investment),
@@ -142,14 +139,11 @@ fun InvestmentItem(
     var showMenu by remember { mutableStateOf(false) }
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
-    
-    Card(
+
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onItemClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            .clickable(onClick = onItemClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -164,7 +158,7 @@ fun InvestmentItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 Box {
                     IconButton(onClick = { showMenu = true }) {
                         Icon(
@@ -172,7 +166,7 @@ fun InvestmentItem(
                             contentDescription = stringResource(R.string.more_options)
                         )
                     }
-                    
+
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
@@ -206,16 +200,16 @@ fun InvestmentItem(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // 当前价值
             Text(
                 text = currencyFormatter.format(investment.currentValue),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
-            
+
             // 投资类型和收益率
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -233,7 +227,7 @@ fun InvestmentItem(
                     ),
                     style = MaterialTheme.typography.bodyMedium
                 )
-                
+
                 Text(
                     text = "${stringResource(R.string.return_rate)}: ${
                         if (investment.expectedAnnualReturn != null) {
@@ -245,7 +239,7 @@ fun InvestmentItem(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            
+
             // 购买日期和到期日
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -255,7 +249,7 @@ fun InvestmentItem(
                     text = "${stringResource(R.string.purchase_date)}: ${dateFormatter.format(investment.startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                
+
                 if (investment.endDate != null) {
                     Text(
                         text = "${stringResource(R.string.maturity_date)}: ${dateFormatter.format(investment.endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())}",
@@ -265,4 +259,4 @@ fun InvestmentItem(
             }
         }
     }
-} 
+}

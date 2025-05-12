@@ -20,6 +20,9 @@ import com.ccjizhang.data.model.FinancialReport
 import com.ccjizhang.ui.common.EmptyContent
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.components.ConfirmDeleteDialog
 import com.ccjizhang.ui.components.InfoRow
 import com.ccjizhang.ui.viewmodels.FinancialReportViewModel
@@ -44,36 +47,35 @@ fun FinancialReportDetailScreen(
     val report by viewModel.getReportByIdFlow(reportId).collectAsState(initial = null)
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(key1 = report) {
         if (report == null && !uiState.isLoading) {
             // Report not found
             onNavigateBack()
         }
     }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(R.string.financial_report),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack,
-                actions = {
-                    IconButton(onClick = { /* TODO: 实现分享功能 */ }) {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = stringResource(R.string.share)
-                        )
-                    }
-                    
-                    IconButton(onClick = { showDeleteDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.delete)
-                        )
-                    }
-                }
-            )
+
+    UnifiedScaffold(
+        title = stringResource(R.string.financial_report),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = false,
+        actions = {
+            IconButton(onClick = { /* TODO: 实现分享功能 */ }) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = stringResource(R.string.share),
+                    tint = androidx.compose.ui.graphics.Color.White
+                )
+            }
+
+            IconButton(onClick = { showDeleteDialog = true }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = androidx.compose.ui.graphics.Color.White
+                )
+            }
         }
     ) { innerPadding ->
         when {
@@ -97,7 +99,7 @@ fun FinancialReportDetailScreen(
                 val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
                 val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
                 val percentFormatter = remember { NumberFormat.getPercentInstance() }
-                
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -107,11 +109,8 @@ fun FinancialReportDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     // 报告头部
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                    PrimaryCard(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
                             modifier = Modifier
@@ -124,30 +123,30 @@ fun FinancialReportDetailScreen(
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
-                            
+
                             Spacer(modifier = Modifier.height(8.dp))
-                            
+
                             Text(
                                 text = stringResource(R.string.report_period),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
-                            
+
                             Text(
                                 text = GetFormattedReportPeriodText(report = report!!),
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            
+
                             Spacer(modifier = Modifier.height(4.dp))
-                            
+
                             Text(
                                 text = "${stringResource(R.string.generated_on)}: ${dateFormatter.format(report!!.generatedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())}",
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            
+
                             if (!report!!.note.isNullOrBlank()) {
                                 Spacer(modifier = Modifier.height(8.dp))
-                                
+
                                 Text(
                                     text = report!!.note!!,
                                     style = MaterialTheme.typography.bodyMedium
@@ -155,13 +154,10 @@ fun FinancialReportDetailScreen(
                             }
                         }
                     }
-                    
+
                     // 财务概览
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    SecondaryCard(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
                             modifier = Modifier
@@ -173,35 +169,35 @@ fun FinancialReportDetailScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
-                            
+
                             Spacer(modifier = Modifier.height(8.dp))
-                            
+
                             InfoRow(
                                 label = stringResource(R.string.total_income),
                                 value = currencyFormatter.format(report!!.totalIncome.toDouble()),
                                 valueColor = MaterialTheme.colorScheme.primary
                             )
-                            
+
                             Divider(modifier = Modifier.padding(vertical = 8.dp))
-                            
+
                             InfoRow(
                                 label = stringResource(R.string.total_expense),
                                 value = currencyFormatter.format(report!!.totalExpense.toDouble()),
                                 valueColor = MaterialTheme.colorScheme.error
                             )
-                            
+
                             Divider(modifier = Modifier.padding(vertical = 8.dp))
-                            
+
                             val netIncome = report!!.totalIncome - report!!.totalExpense
                             InfoRow(
                                 label = stringResource(R.string.net_income),
                                 value = currencyFormatter.format(netIncome.toDouble()),
                                 valueColor = if (netIncome >= 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                             )
-                            
+
                             if (report!!.savingsRate != null) {
                                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                                
+
                                 InfoRow(
                                     label = stringResource(R.string.savings_rate),
                                     value = percentFormatter.format(report!!.savingsRate),
@@ -210,22 +206,22 @@ fun FinancialReportDetailScreen(
                             }
                         }
                     }
-                    
+
                     // 收入分析 (接收 JSON String)
                     AnalysisSectionJson(
                         title = stringResource(R.string.income_analysis),
                         json = report!!.incomeAnalysisJson
                     )
-                    
+
                     // 支出分析 (接收 JSON String)
                     AnalysisSectionJson(
                         title = stringResource(R.string.expense_analysis),
                         json = report!!.expenseAnalysisJson
                     )
-                    
+
                     // 账户余额 (接收 JSON String)
                     AccountBalancesSectionJson(json = report!!.accountBalancesJson)
-                    
+
                     // 预算对比 (仍然注释掉)
                     /*
                     if (report!!.budgetComparison != null && report!!.budgetComparison!!.isNotEmpty()) {
@@ -245,23 +241,23 @@ fun FinancialReportDetailScreen(
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
-                                
+
                                 Spacer(modifier = Modifier.height(8.dp))
-                                
+
                                 // 需要解析 report.budgetComparisonJson 并定义 BudgetComparisonData
                                 // report!!.budgetComparison!!.forEachTyped<String, FinancialReport.BudgetComparisonData> { budget, comparison -> ... }
                             }
                         }
                     }
                     */
-                    
+
                     // 财务健康状况 (接收 JSON String)
                     FinancialHealthSectionJson(json = report!!.financialHealthJson)
                 }
             }
         }
     }
-    
+
     if (showDeleteDialog && report != null) {
         ConfirmDeleteDialog(
             title = stringResource(R.string.delete_report),
@@ -280,9 +276,8 @@ fun FinancialReportDetailScreen(
 @Composable
 private fun AnalysisSectionJson(title: String, json: String?) {
     if (!json.isNullOrBlank() && json != "{}") {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        SecondaryCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -316,9 +311,8 @@ private fun AccountBalancesSectionJson(json: String?) {
 @Composable
 private fun FinancialHealthSectionJson(json: String?) {
      if (!json.isNullOrBlank() && json != "{}") {
-        Card(
-             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        SecondaryCard(
+             modifier = Modifier.fillMaxWidth()
         ) {
              Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(stringResource(R.string.financial_health), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -383,4 +377,4 @@ private fun GetFormattedReportPeriodText(report: FinancialReport): String {
         // 确保 R.string.unknown_period 存在，如果不存在，使用 R.string.custom_period 或其他
         unknownPeriodText = stringResource(id = R.string.custom_period) // 修正 unknown_period 引用
     )
-} 
+}

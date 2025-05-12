@@ -24,6 +24,9 @@ import com.ccjizhang.data.model.Period
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.common.DatePickerDialog
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.FinancialReportViewModel
 import com.ccjizhang.util.DateUtils.toDate
 import com.ccjizhang.util.DateUtils.toLocalDate
@@ -45,7 +48,7 @@ fun GenerateReportScreen(
     viewModel: FinancialReportViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     // Form state
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -58,27 +61,27 @@ fun GenerateReportScreen(
     var includeAccountBalances by remember { mutableStateOf(true) }
     var includeBudgetComparison by remember { mutableStateOf(true) }
     var includeFinancialHealth by remember { mutableStateOf(true) }
-    
+
     // UI state
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
     var showPeriodDropdown by remember { mutableStateOf(false) }
     var isGenerating by remember { mutableStateOf(false) }
-    
+
     // Error states
     var titleError by remember { mutableStateOf(false) }
     var dateRangeError by remember { mutableStateOf(false) }
-    
+
     // 开始日期选择器状态
     val startDatePickerState = rememberDatePickerState(
         initialSelectedDateMillis = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     )
-    
+
     // 结束日期选择器状态
     val endDatePickerState = rememberDatePickerState(
         initialSelectedDateMillis = endDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     )
-    
+
     // Adjust dates based on period selection
     LaunchedEffect(period) {
         when (period) {
@@ -102,25 +105,27 @@ fun GenerateReportScreen(
             }
         }
     }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(R.string.generate_report),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack
+
+    UnifiedScaffold(
+        title = stringResource(R.string.generate_report),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.DocumentScanner,
+                contentDescription = stringResource(R.string.generate),
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
+        onFloatingActionButtonClick = {
                     // Validate form
                     titleError = title.isBlank()
                     dateRangeError = startDate.isAfter(endDate)
-                    
+
                     if (!titleError && !dateRangeError) {
                         isGenerating = true
-                        
+
                         viewModel.generateReport(
                             title = title,
                             description = description,
@@ -143,15 +148,7 @@ fun GenerateReportScreen(
                             }
                         )
                     }
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DocumentScanner,
-                    contentDescription = stringResource(R.string.generate)
-                )
-            }
-        }
+                }
     ) { innerPadding ->
         if (uiState.isLoading || isGenerating) {
             Box(
@@ -194,7 +191,7 @@ fun GenerateReportScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
-                
+
                 // 报告描述
                 OutlinedTextField(
                     value = description,
@@ -204,7 +201,7 @@ fun GenerateReportScreen(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     minLines = 2
                 )
-                
+
                 // 报告周期
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -229,7 +226,7 @@ fun GenerateReportScreen(
                             )
                         }
                     )
-                    
+
                     DropdownMenu(
                         expanded = showPeriodDropdown,
                         onDismissRequest = { showPeriodDropdown = false },
@@ -242,7 +239,7 @@ fun GenerateReportScreen(
                                 Period.YEARLY -> R.string.yearly
                                 Period.CUSTOM -> R.string.custom_period
                             }
-                            
+
                             DropdownMenuItem(
                                 onClick = {
                                     period = reportPeriod
@@ -253,13 +250,10 @@ fun GenerateReportScreen(
                         }
                     }
                 }
-                
+
                 // 日期范围
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                SecondaryCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
@@ -271,7 +265,7 @@ fun GenerateReportScreen(
                             text = stringResource(R.string.date_range),
                             style = MaterialTheme.typography.titleMedium
                         )
-                        
+
                         if (dateRangeError) {
                             Text(
                                 text = stringResource(R.string.date_range_error),
@@ -279,9 +273,9 @@ fun GenerateReportScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
-                        
+
                         val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-                        
+
                         // 开始日期
                         OutlinedTextField(
                             value = startDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)),
@@ -299,7 +293,7 @@ fun GenerateReportScreen(
                                 )
                             }
                         )
-                        
+
                         // 结束日期
                         OutlinedTextField(
                             value = endDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)),
@@ -319,13 +313,10 @@ fun GenerateReportScreen(
                         )
                     }
                 }
-                
+
                 // 报告内容
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                SecondaryCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
@@ -337,7 +328,7 @@ fun GenerateReportScreen(
                             text = stringResource(R.string.report_content),
                             style = MaterialTheme.typography.titleMedium
                         )
-                        
+
                         // 包含收入分析
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -350,7 +341,7 @@ fun GenerateReportScreen(
                                 onCheckedChange = { includeIncomeAnalysis = it }
                             )
                         }
-                        
+
                         // 包含支出分析
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -363,7 +354,7 @@ fun GenerateReportScreen(
                                 onCheckedChange = { includeExpenseAnalysis = it }
                             )
                         }
-                        
+
                         // 包含分类明细
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -376,7 +367,7 @@ fun GenerateReportScreen(
                                 onCheckedChange = { includeCategoryBreakdown = it }
                             )
                         }
-                        
+
                         // 包含账户余额
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -389,7 +380,7 @@ fun GenerateReportScreen(
                                 onCheckedChange = { includeAccountBalances = it }
                             )
                         }
-                        
+
                         // 包含预算对比
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -402,7 +393,7 @@ fun GenerateReportScreen(
                                 onCheckedChange = { includeBudgetComparison = it }
                             )
                         }
-                        
+
                         // 包含财务健康状况
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -420,7 +411,7 @@ fun GenerateReportScreen(
             }
         }
     }
-    
+
     // 开始日期选择器
     if (showStartDatePicker) {
         DatePickerDialog(
@@ -435,7 +426,7 @@ fun GenerateReportScreen(
             onDismiss = { showStartDatePicker = false }
         )
     }
-    
+
     // 结束日期选择器
     if (showEndDatePicker) {
         DatePickerDialog(
@@ -450,4 +441,4 @@ fun GenerateReportScreen(
             onDismiss = { showEndDatePicker = false }
         )
     }
-} 
+}

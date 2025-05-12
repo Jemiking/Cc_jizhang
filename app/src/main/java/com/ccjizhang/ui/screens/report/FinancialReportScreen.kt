@@ -20,6 +20,9 @@ import com.ccjizhang.data.model.Period
 import com.ccjizhang.ui.common.EmptyContent
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.components.ConfirmDeleteDialog
 import com.ccjizhang.ui.viewmodels.FinancialReportViewModel
 import com.ccjizhang.util.DateUtils.toLocalDate
@@ -40,26 +43,20 @@ fun FinancialReportScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedReport by remember { mutableStateOf<FinancialReport?>(null) }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(R.string.financial_reports),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack
+
+    UnifiedScaffold(
+        title = stringResource(R.string.financial_reports),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.generate_report),
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToGenerateReport,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.generate_report)
-                )
-            }
-        }
+        onFloatingActionButtonClick = onNavigateToGenerateReport
     ) { innerPadding ->
         when {
             uiState.isLoading -> {
@@ -102,7 +99,7 @@ fun FinancialReportScreen(
             }
         }
     }
-    
+
     if (showDeleteDialog && selectedReport != null) {
         ConfirmDeleteDialog(
             title = stringResource(R.string.delete_report),
@@ -132,14 +129,11 @@ fun FinancialReportItem(
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
     var showMenu by remember { mutableStateOf(false) }
-    
-    Card(
+
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onItemClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            .clickable(onClick = onItemClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -154,7 +148,7 @@ fun FinancialReportItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 Box {
                     IconButton(onClick = { showMenu = true }) {
                         Icon(
@@ -162,7 +156,7 @@ fun FinancialReportItem(
                             contentDescription = stringResource(R.string.more_options)
                         )
                     }
-                    
+
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
@@ -196,9 +190,9 @@ fun FinancialReportItem(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -207,15 +201,15 @@ fun FinancialReportItem(
                     text = "${stringResource(R.string.generated_on)}: ${dateFormatter.format(report.generatedDate.toLocalDate())}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                
+
                 Text(
                     text = getReportPeriodText(report),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             Text(
                 text = report.note ?: "",
                 style = MaterialTheme.typography.bodyMedium,
@@ -244,4 +238,4 @@ private fun getReportPeriodText(report: FinancialReport): String {
         }
         else -> stringResource(R.string.custom_period)
     }
-} 
+}

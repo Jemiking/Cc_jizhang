@@ -26,6 +26,9 @@ import com.ccjizhang.data.model.Investment.Type as InvestmentType
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.common.DatePickerDialog
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.InvestmentViewModel
 import com.ccjizhang.util.DateUtils.toDate
 import com.ccjizhang.util.EnumUtils
@@ -48,7 +51,7 @@ fun InvestmentAddEditScreen(
 ) {
     val isEditMode = investmentId > 0
     val coroutineScope = rememberCoroutineScope()
-    
+
     // Form state
     var name by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(0) }
@@ -63,27 +66,27 @@ fun InvestmentAddEditScreen(
     var endDate by remember { mutableStateOf<Date?>(null) }
     var hasEndDate by remember { mutableStateOf(false) }
     var notes by remember { mutableStateOf("") }
-    
+
     // 获取账户列表
     val accounts by viewModel.accounts.collectAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.collectAsState()
-    
+
     // UI state
     var showPurchaseDatePicker by remember { mutableStateOf(false) }
     var showMaturityDatePicker by remember { mutableStateOf(false) }
     var showTypeDropdown by remember { mutableStateOf(false) }
     var showRiskDropdown by remember { mutableStateOf(false) }
     var showAccountDropdown by remember { mutableStateOf(false) }
-    
+
     // Error states
     var nameError by remember { mutableStateOf(false) }
     var initialAmountError by remember { mutableStateOf(false) }
     var currentValueError by remember { mutableStateOf(false) }
     var expectedAnnualReturnError by remember { mutableStateOf(false) }
-    
+
     // Observe selected details from ViewModel
     val selectedInvestmentDetails by viewModel.selectedInvestmentDetails.collectAsState()
-    
+
     // Initialize form if in edit mode
     LaunchedEffect(investmentId) {
         if (isEditMode) {
@@ -94,7 +97,7 @@ fun InvestmentAddEditScreen(
             viewModel.selectInvestmentDetails(-1L) // Or a dedicated clear method
         }
     }
-    
+
     // Update form state when selected details change
     LaunchedEffect(selectedInvestmentDetails) {
         if (isEditMode) {
@@ -116,27 +119,29 @@ fun InvestmentAddEditScreen(
             }
         }
     }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(
-                    if (isEditMode) R.string.edit_investment 
-                    else R.string.add_investment
-                ),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack
+
+    UnifiedScaffold(
+        title = stringResource(
+            if (isEditMode) R.string.edit_investment
+            else R.string.add_investment
+        ),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = stringResource(R.string.save),
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
+        onFloatingActionButtonClick = {
                     // Validate form
                     nameError = name.isBlank()
                     initialAmountError = initialAmount.isBlank() || initialAmount.toDoubleOrNull() == null
                     currentValueError = currentValue.isBlank() || currentValue.toDoubleOrNull() == null
                     expectedAnnualReturnError = expectedAnnualReturn.isNotBlank() && expectedAnnualReturn.toDoubleOrNull() == null
-                    
+
                     if (!nameError && !initialAmountError && !currentValueError && !expectedAnnualReturnError) {
                         coroutineScope.launch {
                             // Prepare data for saving
@@ -183,15 +188,7 @@ fun InvestmentAddEditScreen(
                             onSaveSuccess()
                         }
                     }
-                },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Save,
-                    contentDescription = stringResource(R.string.save)
-                )
-            }
-        }
+                }
     ) { innerPadding ->
         if (isLoading) {
             LoadingContent(
@@ -222,7 +219,7 @@ fun InvestmentAddEditScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
-                
+
                 // 投资类型
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -248,7 +245,7 @@ fun InvestmentAddEditScreen(
                             )
                         }
                     )
-                    
+
                     DropdownMenu(
                         expanded = showTypeDropdown,
                         onDismissRequest = { showTypeDropdown = false },
@@ -256,42 +253,42 @@ fun InvestmentAddEditScreen(
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.deposit)) },
-                            onClick = { 
+                            onClick = {
                                 type = EnumUtils.toInt(InvestmentType.DEPOSIT)
-                                showTypeDropdown = false 
+                                showTypeDropdown = false
                             }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.stock)) },
-                            onClick = { 
+                            onClick = {
                                 type = EnumUtils.toInt(InvestmentType.STOCK)
-                                showTypeDropdown = false 
+                                showTypeDropdown = false
                             }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.fund)) },
-                            onClick = { 
+                            onClick = {
                                 type = EnumUtils.toInt(InvestmentType.FUND)
-                                showTypeDropdown = false 
+                                showTypeDropdown = false
                             }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.bond)) },
-                            onClick = { 
+                            onClick = {
                                 type = EnumUtils.toInt(InvestmentType.BOND)
-                                showTypeDropdown = false 
+                                showTypeDropdown = false
                             }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.other_investment)) },
-                            onClick = { 
+                            onClick = {
                                 type = EnumUtils.toInt(InvestmentType.OTHER)
-                                showTypeDropdown = false 
+                                showTypeDropdown = false
                             }
                         )
                     }
                 }
-                
+
                 // 风险等级
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -317,7 +314,7 @@ fun InvestmentAddEditScreen(
                             )
                         }
                     )
-                    
+
                     DropdownMenu(
                         expanded = showRiskDropdown,
                         onDismissRequest = { showRiskDropdown = false },
@@ -330,7 +327,7 @@ fun InvestmentAddEditScreen(
                                 2 -> R.string.risk_high
                                 else -> R.string.risk_unknown
                             }
-                            
+
                             DropdownMenuItem(
                                 text = { Text(stringResource(resourceId)) },
                                 onClick = {
@@ -341,7 +338,7 @@ fun InvestmentAddEditScreen(
                         }
                     }
                 }
-                
+
                 // 初始金额
                 OutlinedTextField(
                     value = initialAmount,
@@ -359,7 +356,7 @@ fun InvestmentAddEditScreen(
                         imeAction = ImeAction.Next
                     )
                 )
-                
+
                 // 当前价值
                 OutlinedTextField(
                     value = currentValue,
@@ -377,7 +374,7 @@ fun InvestmentAddEditScreen(
                         imeAction = ImeAction.Next
                     )
                 )
-                
+
                 // 预期年收益率
                 OutlinedTextField(
                     value = expectedAnnualReturn,
@@ -394,7 +391,7 @@ fun InvestmentAddEditScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
-                
+
                 // 账户
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -412,7 +409,7 @@ fun InvestmentAddEditScreen(
                             )
                         }
                     )
-                    
+
                     DropdownMenu(
                         expanded = showAccountDropdown,
                         onDismissRequest = { showAccountDropdown = false },
@@ -437,7 +434,7 @@ fun InvestmentAddEditScreen(
                         )
                     }
                 }
-                
+
                 // 购买日期
                 OutlinedTextField(
                     value = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()),
@@ -449,7 +446,7 @@ fun InvestmentAddEditScreen(
                         .clickable { showPurchaseDatePicker = true },
                     trailingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) }
                 )
-                
+
                 // 到期日期选项
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -459,13 +456,13 @@ fun InvestmentAddEditScreen(
                         checked = hasEndDate,
                         onCheckedChange = { hasEndDate = it }
                     )
-                    
+
                     Text(
                         text = "设置到期日",
                         modifier = Modifier.clickable { hasEndDate = !hasEndDate }
                     )
                 }
-                
+
                 // 到期日期
                 if (hasEndDate) {
                     OutlinedTextField(
@@ -479,7 +476,7 @@ fun InvestmentAddEditScreen(
                         trailingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) }
                     )
                 }
-                
+
                 // 备注
                 OutlinedTextField(
                     value = notes,
@@ -492,7 +489,7 @@ fun InvestmentAddEditScreen(
             }
         }
     }
-    
+
     // 购买日期选择器
     if (showPurchaseDatePicker) {
         DatePickerDialog(
@@ -504,7 +501,7 @@ fun InvestmentAddEditScreen(
             onDismiss = { showPurchaseDatePicker = false }
         )
     }
-    
+
     // 到期日期选择器
     if (showMaturityDatePicker && hasEndDate) {
         DatePickerDialog(
@@ -516,4 +513,4 @@ fun InvestmentAddEditScreen(
             onDismiss = { showMaturityDatePicker = false }
         )
     }
-} 
+}

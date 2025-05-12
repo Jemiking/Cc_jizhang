@@ -27,6 +27,9 @@ import com.ccjizhang.data.model.RecurringTransaction
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.common.DatePickerDialog
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.RecurringTransactionViewModel
 import java.time.LocalDate
 import java.time.ZoneId
@@ -48,7 +51,7 @@ fun RecurringTransactionAddEditScreen(
 ) {
     val isEditMode = transactionId > 0
     val coroutineScope = rememberCoroutineScope()
-    
+
     // Form state
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
@@ -67,12 +70,12 @@ fun RecurringTransactionAddEditScreen(
     var maxExecutions by remember { mutableStateOf("0") } // 0 for infinite
     var notifyBefore by remember { mutableStateOf(false) }
     var notifyDays by remember { mutableStateOf("1") }
-    
+
     // Derived state for UI consistency
     val isExpense = transactionType == 0
     val isIncome = transactionType == 1
     val isTransfer = transactionType == 2
-    
+
     // UI state
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
@@ -80,17 +83,17 @@ fun RecurringTransactionAddEditScreen(
     var showToAccountDropdown by remember { mutableStateOf(false) } // For Transfers
     var showCategoryDropdown by remember { mutableStateOf(false) }
     var showFrequencyDropdown by remember { mutableStateOf(false) }
-    
+
     // Data from ViewModel
     val accounts by viewModel.accounts.collectAsState(initial = emptyList())
     val expenseCategories by viewModel.expenseCategories.collectAsState(initial = emptyList())
     val incomeCategories by viewModel.incomeCategories.collectAsState(initial = emptyList())
-    
+
     val categoriesToShow = if (isExpense) expenseCategories else incomeCategories
-    
+
     // TODO: Add loading state handling from ViewModel if needed
     val isLoading = false // Placeholder
-    
+
     // Error states
     var descriptionError by remember { mutableStateOf(false) }
     var amountError by remember { mutableStateOf(false) }
@@ -101,10 +104,10 @@ fun RecurringTransactionAddEditScreen(
     var specificDayError by remember { mutableStateOf(false) }
     var maxExecutionsError by remember { mutableStateOf(false) }
     var notifyDaysError by remember { mutableStateOf(false) }
-    
+
     // Observe selected details from ViewModel
     val selectedTransactionDetails by viewModel.selectedTransactionDetails.collectAsState()
-    
+
     // Initialize form if in edit mode
     LaunchedEffect(transactionId) {
         if (isEditMode) {
@@ -115,7 +118,7 @@ fun RecurringTransactionAddEditScreen(
             viewModel.selectTransactionDetails(-1L) // Or a dedicated clear method
         }
     }
-    
+
     // Update form state when selected details change
     LaunchedEffect(selectedTransactionDetails) {
         if (isEditMode) {
@@ -141,70 +144,64 @@ fun RecurringTransactionAddEditScreen(
             }
         }
     }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(
-                    if (isEditMode) R.string.edit_recurring_transaction 
-                    else R.string.add_recurring_transaction
-                ),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack
+
+    UnifiedScaffold(
+        title = stringResource(
+            if (isEditMode) R.string.edit_recurring_transaction
+            else R.string.add_recurring_transaction
+        ),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = stringResource(R.string.save),
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    // Validate form
-                    descriptionError = description.isBlank()
-                    amountError = amount.isBlank() || amount.toDoubleOrNull() == null || amount.toDouble() <= 0
-                    accountError = selectedAccount == null
-                    toAccountError = isTransfer && selectedToAccount == null
-                    categoryError = !isTransfer && selectedCategory == null
-                    
-                    if (!descriptionError && !amountError && !accountError && !toAccountError && !categoryError) {
-                        coroutineScope.launch {
-                            val amountValue = amount.toDouble()
-                            val maxExecutionsValue = maxExecutions.toIntOrNull() ?: 0
-                            val notifyDaysValue = if (notifyBefore) notifyDays.toIntOrNull() ?: 1 else null
-                            val customDaysValue = if (recurrenceType == 6) customRecurrenceDays.toIntOrNull() else null
-                            
-                            if (isEditMode && selectedTransactionDetails != null) {
-                                // Update
-                                val updatedTransaction = selectedTransactionDetails!!.copy(
-                                    type = transactionType,
-                                    amount = amountValue,
-                                    description = description,
-                                    categoryId = if (isTransfer) null else selectedCategory?.id,
-                                    fromAccountId = selectedAccount!!.id,
-                                    toAccountId = if (isTransfer) selectedToAccount?.id else null,
-                                    firstExecutionDate = startDate,
-                                    endDate = if (hasEndDate) endDate else null,
-                                    recurrenceType = recurrenceType,
-                                    customRecurrenceDays = customDaysValue,
-                                    specificRecurrenceDay = if (recurrenceType == 3 || recurrenceType == 5) specificRecurrenceDay else null,
-                                    weekdayMask = if (recurrenceType == 1) weekdayMask else null,
-                                    // nextExecutionDate might need recalculation here if start date/pattern changed
-                                    nextExecutionDate = selectedTransactionDetails!!.nextExecutionDate, // Keep original for now
-                                    maxExecutions = maxExecutionsValue,
-                                    note = notes.takeIf { it.isNotBlank() },
-                                    notifyBeforeExecution = notifyBefore,
-                                    notifyDaysBefore = notifyDaysValue,
-                                    updatedAt = Date()
-                                )
-                                viewModel.updateRecurringTransaction(updatedTransaction)
-                            }
-                            onSaveSuccess()
-                        }
+        onFloatingActionButtonClick = {
+            // Validate form
+            descriptionError = description.isBlank()
+            amountError = amount.isBlank() || amount.toDoubleOrNull() == null || amount.toDouble() <= 0
+            accountError = selectedAccount == null
+            toAccountError = isTransfer && selectedToAccount == null
+            categoryError = !isTransfer && selectedCategory == null
+
+            if (!descriptionError && !amountError && !accountError && !toAccountError && !categoryError) {
+                coroutineScope.launch {
+                    val amountValue = amount.toDouble()
+                    val maxExecutionsValue = maxExecutions.toIntOrNull() ?: 0
+                    val notifyDaysValue = if (notifyBefore) notifyDays.toIntOrNull() ?: 1 else null
+                    val customDaysValue = if (recurrenceType == 6) customRecurrenceDays.toIntOrNull() else null
+
+                    if (isEditMode && selectedTransactionDetails != null) {
+                        // Update
+                        val updatedTransaction = selectedTransactionDetails!!.copy(
+                            type = transactionType,
+                            amount = amountValue,
+                            description = description,
+                            categoryId = if (isTransfer) null else selectedCategory?.id,
+                            fromAccountId = selectedAccount!!.id,
+                            toAccountId = if (isTransfer) selectedToAccount?.id else null,
+                            firstExecutionDate = startDate,
+                            endDate = if (hasEndDate) endDate else null,
+                            recurrenceType = recurrenceType,
+                            customRecurrenceDays = customDaysValue,
+                            specificRecurrenceDay = if (recurrenceType == 3 || recurrenceType == 5) specificRecurrenceDay else null,
+                            weekdayMask = if (recurrenceType == 1) weekdayMask else null,
+                            // nextExecutionDate might need recalculation here if start date/pattern changed
+                            nextExecutionDate = selectedTransactionDetails!!.nextExecutionDate, // Keep original for now
+                            maxExecutions = maxExecutionsValue,
+                            note = notes.takeIf { it.isNotBlank() },
+                            notifyBeforeExecution = notifyBefore,
+                            notifyDaysBefore = notifyDaysValue,
+                            updatedAt = Date()
+                        )
+                        viewModel.updateRecurringTransaction(updatedTransaction)
                     }
-                },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Save,
-                    contentDescription = stringResource(R.string.save)
-                )
+                    onSaveSuccess()
+                }
             }
         }
     ) { innerPadding ->
@@ -224,11 +221,8 @@ fun RecurringTransactionAddEditScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Type toggle (Income/Expense/Transfer)
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                SecondaryCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
                         modifier = Modifier
@@ -245,7 +239,7 @@ fun RecurringTransactionAddEditScreen(
                                 selectedLabelColor = MaterialTheme.colorScheme.onError
                             )
                         )
-                        
+
                         FilterChip(
                             selected = transactionType == 1,
                             onClick = { transactionType = 1; selectedCategory = null }, // Reset category
@@ -255,7 +249,7 @@ fun RecurringTransactionAddEditScreen(
                                 selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                             )
                         )
-                        
+
                         FilterChip(
                             selected = transactionType == 2,
                             onClick = { transactionType = 2; selectedCategory = null }, // Reset category
@@ -267,7 +261,7 @@ fun RecurringTransactionAddEditScreen(
                         )
                     }
                 }
-                
+
                 // Description
                 OutlinedTextField(
                     value = description,
@@ -282,7 +276,7 @@ fun RecurringTransactionAddEditScreen(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
-                
+
                 // Amount
                 OutlinedTextField(
                     value = amount,
@@ -300,7 +294,7 @@ fun RecurringTransactionAddEditScreen(
                         imeAction = ImeAction.Next
                     )
                 )
-                
+
                 // From Account dropdown
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -319,7 +313,7 @@ fun RecurringTransactionAddEditScreen(
                             )
                         }
                     )
-                    
+
                     DropdownMenu(
                         expanded = showAccountDropdown,
                         onDismissRequest = { showAccountDropdown = false },
@@ -339,7 +333,7 @@ fun RecurringTransactionAddEditScreen(
                         }
                     }
                 }
-                
+
                 // To Account dropdown (Only for Transfers)
                 if (isTransfer) {
                     Box(modifier = Modifier.fillMaxWidth()) {
@@ -380,7 +374,7 @@ fun RecurringTransactionAddEditScreen(
                         }
                     }
                 }
-                
+
                 // Category dropdown (Not for Transfers)
                 if (!isTransfer) {
                     Box(modifier = Modifier.fillMaxWidth()) {
@@ -400,7 +394,7 @@ fun RecurringTransactionAddEditScreen(
                                 )
                             }
                         )
-                        
+
                         DropdownMenu(
                             expanded = showCategoryDropdown,
                             onDismissRequest = { showCategoryDropdown = false },
@@ -418,7 +412,7 @@ fun RecurringTransactionAddEditScreen(
                         }
                     }
                 }
-                
+
                 // Start Date
                 val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
                 OutlinedTextField(
@@ -436,7 +430,7 @@ fun RecurringTransactionAddEditScreen(
                         )
                     }
                 )
-                
+
                 // Frequency dropdown
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -465,7 +459,7 @@ fun RecurringTransactionAddEditScreen(
                             )
                         }
                     )
-                    
+
                     DropdownMenu(
                         expanded = showFrequencyDropdown,
                         onDismissRequest = { showFrequencyDropdown = false },
@@ -482,7 +476,7 @@ fun RecurringTransactionAddEditScreen(
                                 6 -> R.string.custom_days
                                 else -> R.string.unknown
                             }
-                            
+
                             DropdownMenuItem(
                                 text = { Text(stringResource(resourceId)) },
                                 onClick = {
@@ -493,7 +487,7 @@ fun RecurringTransactionAddEditScreen(
                         }
                     }
                 }
-                
+
                 // Specific day/week/month input (depends on frequency)
                 when (recurrenceType) {
                     1 -> { // Weekly
@@ -513,7 +507,7 @@ fun RecurringTransactionAddEditScreen(
                     3 -> { // Monthly
                         OutlinedTextField(
                             value = specificRecurrenceDay ?: "",
-                            onValueChange = { 
+                            onValueChange = {
                                 val value = it.toIntOrNull()
                                 if (value != null && value in 1..31) {
                                     specificRecurrenceDay = it
@@ -549,7 +543,7 @@ fun RecurringTransactionAddEditScreen(
                     6 -> { // Custom Days
                         OutlinedTextField(
                             value = customRecurrenceDays,
-                            onValueChange = { 
+                            onValueChange = {
                                 if (it.all { char -> char.isDigit() }) {
                                     customRecurrenceDays = it
                                     customDaysError = false
@@ -567,7 +561,7 @@ fun RecurringTransactionAddEditScreen(
                     }
                     else -> {} // Daily, Bi-Weekly, Quarterly don't need specific day input here
                 }
-                
+
                 // End Date Option
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -582,7 +576,7 @@ fun RecurringTransactionAddEditScreen(
                         modifier = Modifier.clickable { hasEndDate = !hasEndDate }
                     )
                 }
-                
+
                 // End Date Picker
                 if (hasEndDate) {
                     OutlinedTextField(
@@ -596,15 +590,15 @@ fun RecurringTransactionAddEditScreen(
                         trailingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) }
                     )
                 }
-                
+
                 // Max Executions
                 OutlinedTextField(
                     value = maxExecutions,
-                    onValueChange = { 
+                    onValueChange = {
                         if (it.all { char -> char.isDigit() }) {
                             maxExecutions = it
                             maxExecutionsError = false
-                        } 
+                        }
                     },
                     label = { Text(stringResource(R.string.max_executions)) },
                     isError = maxExecutionsError,
@@ -615,7 +609,7 @@ fun RecurringTransactionAddEditScreen(
                     ),
                     supportingText = { Text(if (maxExecutionsError) "请输入有效的数字" else "0 表示无限次") }
                 )
-                
+
                 // Notification Option
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -630,12 +624,12 @@ fun RecurringTransactionAddEditScreen(
                         modifier = Modifier.clickable { notifyBefore = !notifyBefore }
                     )
                 }
-                
+
                 // Notify Days Before
                 if (notifyBefore) {
                     OutlinedTextField(
                         value = notifyDays,
-                        onValueChange = { 
+                        onValueChange = {
                             if (it.all { char -> char.isDigit() }) {
                                 notifyDays = it
                                 notifyDaysError = false
@@ -651,7 +645,7 @@ fun RecurringTransactionAddEditScreen(
                         supportingText = { Text(if (notifyDaysError) "请输入有效的天数" else "提前几天通知") }
                     )
                 }
-                
+
                 // Notes
                 OutlinedTextField(
                     value = notes,
@@ -664,7 +658,7 @@ fun RecurringTransactionAddEditScreen(
             }
         }
     }
-    
+
     // Start Date picker dialog
     if (showStartDatePicker) {
         DatePickerDialog(
@@ -676,7 +670,7 @@ fun RecurringTransactionAddEditScreen(
             onDismiss = { showStartDatePicker = false }
         )
     }
-    
+
     // End Date picker dialog
     if (showEndDatePicker && hasEndDate) {
         DatePickerDialog(
@@ -688,4 +682,4 @@ fun RecurringTransactionAddEditScreen(
             onDismiss = { showEndDatePicker = false }
         )
     }
-} 
+}

@@ -40,6 +40,9 @@ import com.ccjizhang.ui.common.DatePickerDialog
 import com.ccjizhang.ui.common.IconPickerDialog
 import com.ccjizhang.ui.common.TextFieldWithErrorState
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.SavingGoalViewModel
 import com.ccjizhang.util.DateUtils
 import kotlinx.coroutines.launch
@@ -59,13 +62,13 @@ fun SavingGoalAddEditScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    
+
     // 账户列表
     val accounts by viewModel.accounts.collectAsState(initial = emptyList())
-    
+
     // 编辑模式下加载现有目标
     val existingGoal = remember { mutableStateOf<SavingGoal?>(null) }
-    
+
     LaunchedEffect(goalId) {
         if (goalId != null) {
             viewModel.selectGoal(goalId)
@@ -76,7 +79,7 @@ fun SavingGoalAddEditScreen(
             }
         }
     }
-    
+
     // 表单状态
     val name = remember { mutableStateOf(existingGoal.value?.name ?: "") }
     val nameError = remember { mutableStateOf<String?>(null) }
@@ -93,25 +96,25 @@ fun SavingGoalAddEditScreen(
     val note = remember { mutableStateOf(existingGoal.value?.note ?: "") }
     val autoSaveAmount = remember { mutableStateOf(existingGoal.value?.autoSaveAmount?.toString() ?: "") }
     val autoSaveFrequencyDays = remember { mutableStateOf(existingGoal.value?.autoSaveFrequencyDays?.toString() ?: "") }
-    
+
     // 对话框状态
     val showStartDatePicker = remember { mutableStateOf(false) }
     val showTargetDatePicker = remember { mutableStateOf(false) }
     val showAccountPicker = remember { mutableStateOf(false) }
     val showColorPicker = remember { mutableStateOf(false) }
     val showIconPicker = remember { mutableStateOf(false) }
-    
+
     // 表单验证
     fun validateForm(): Boolean {
         var isValid = true
-        
+
         if (name.value.isBlank()) {
             nameError.value = "目标名称不能为空"
             isValid = false
         } else {
             nameError.value = null
         }
-        
+
         try {
             val amount = targetAmount.value.toDoubleOrNull()
             if (amount == null || amount <= 0) {
@@ -124,28 +127,28 @@ fun SavingGoalAddEditScreen(
             targetAmountError.value = "请输入有效的目标金额"
             isValid = false
         }
-        
+
         if (startDate.value.after(targetDate.value)) {
             targetDateError.value = "目标日期必须晚于开始日期"
             isValid = false
         } else {
             targetDateError.value = null
         }
-        
+
         return isValid
     }
-    
+
     // 保存目标
     fun saveGoal() {
         if (!validateForm()) return
-        
+
         coroutineScope.launch {
             try {
                 val targetAmountValue = targetAmount.value.toDoubleOrNull() ?: 0.0
                 val currentAmountValue = currentAmount.value.toDoubleOrNull() ?: 0.0
                 val autoSaveAmountValue = autoSaveAmount.value.toDoubleOrNull()
                 val autoSaveFrequencyDaysValue = autoSaveFrequencyDays.value.toIntOrNull()
-                
+
                 if (existingGoal.value != null) {
                     // 更新现有目标
                     val updatedGoal = existingGoal.value!!.copy(
@@ -179,23 +182,28 @@ fun SavingGoalAddEditScreen(
                         autoSaveFrequencyDays = autoSaveFrequencyDaysValue
                     )
                 }
-                
+
                 navController.popBackStack()
             } catch (e: Exception) {
                 // 处理可能的错误
             }
         }
     }
-    
-    RoundedTopBarScaffold(
+
+    UnifiedScaffold(
         title = if (goalId == null) "新建储蓄目标" else "编辑储蓄目标",
         navController = navController,
         showBackButton = true,
-        actions = {
-             IconButton(onClick = { saveGoal() }) {
-                 Icon(Icons.Default.Check, contentDescription = "保存")
-             }
-        }
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "保存",
+                tint = Color.White
+            )
+        },
+        onFloatingActionButtonClick = { saveGoal() },
+        actions = {}
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -244,9 +252,9 @@ fun SavingGoalAddEditScreen(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // 目标名称
             TextFieldWithErrorState(
                 value = name.value,
@@ -256,9 +264,9 @@ fun SavingGoalAddEditScreen(
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // 目标金额
             TextFieldWithErrorState(
                 value = targetAmount.value,
@@ -269,9 +277,9 @@ fun SavingGoalAddEditScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 leadingIcon = { Text("¥", style = MaterialTheme.typography.bodyLarge) }
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // 当前金额 (编辑模式下)
             if (existingGoal.value != null) {
                 OutlinedTextField(
@@ -282,10 +290,10 @@ fun SavingGoalAddEditScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     leadingIcon = { Text("¥", style = MaterialTheme.typography.bodyLarge) }
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            
+
             // 关联账户
             OutlinedTextField(
                 value = accounts.find { it.id == selectedAccount.value }?.name ?: "未选择账户",
@@ -298,9 +306,9 @@ fun SavingGoalAddEditScreen(
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) }
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // 开始日期和目标日期
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -317,7 +325,7 @@ fun SavingGoalAddEditScreen(
                     enabled = false,
                     leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) }
                 )
-                
+
                 TextFieldWithErrorState(
                     value = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(targetDate.value),
                     onValueChange = { },
@@ -331,9 +339,9 @@ fun SavingGoalAddEditScreen(
                     leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) }
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // 优先级
             Text("优先级", style = MaterialTheme.typography.bodyMedium)
             Slider(
@@ -350,9 +358,9 @@ fun SavingGoalAddEditScreen(
                 Text("低", style = MaterialTheme.typography.bodySmall)
                 Text("高", style = MaterialTheme.typography.bodySmall)
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // 备注
             OutlinedTextField(
                 value = note.value,
@@ -361,11 +369,11 @@ fun SavingGoalAddEditScreen(
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // 自动存款设置
-            Card(
+            SecondaryCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -374,9 +382,9 @@ fun SavingGoalAddEditScreen(
                         .padding(16.dp)
                 ) {
                     Text("自动存款设置 (可选)", style = MaterialTheme.typography.titleMedium)
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     OutlinedTextField(
                         value = autoSaveAmount.value,
                         onValueChange = { autoSaveAmount.value = it },
@@ -385,9 +393,9 @@ fun SavingGoalAddEditScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         leadingIcon = { Text("¥", style = MaterialTheme.typography.bodyLarge) }
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     OutlinedTextField(
                         value = autoSaveFrequencyDays.value,
                         onValueChange = { autoSaveFrequencyDays.value = it },
@@ -397,11 +405,11 @@ fun SavingGoalAddEditScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
-    
+
     // 日期选择对话框
     if (showStartDatePicker.value) {
         DatePickerDialog(
@@ -413,7 +421,7 @@ fun SavingGoalAddEditScreen(
             onDismiss = { showStartDatePicker.value = false }
         )
     }
-    
+
     if (showTargetDatePicker.value) {
         DatePickerDialog(
             initialDate = targetDate.value,
@@ -425,7 +433,7 @@ fun SavingGoalAddEditScreen(
             onDismiss = { showTargetDatePicker.value = false }
         )
     }
-    
+
     // 账户选择对话框
     if (showAccountPicker.value) {
         AlertDialog(
@@ -471,7 +479,7 @@ fun SavingGoalAddEditScreen(
             }
         )
     }
-    
+
     // 颜色选择对话框
     if (showColorPicker.value) {
         ColorPickerDialog(
@@ -483,7 +491,7 @@ fun SavingGoalAddEditScreen(
             onDismiss = { showColorPicker.value = false }
         )
     }
-    
+
     // 图标选择对话框
     if (showIconPicker.value) {
         IconPickerDialog(
@@ -494,4 +502,4 @@ fun SavingGoalAddEditScreen(
             onDismiss = { showIconPicker.value = false }
         )
     }
-} 
+}

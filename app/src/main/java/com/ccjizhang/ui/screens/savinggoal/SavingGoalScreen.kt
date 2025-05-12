@@ -33,6 +33,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.navigation.NavHostController
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 
 /**
  * 储蓄目标主界面
@@ -49,26 +52,20 @@ fun SavingGoalScreen(
     val selectedTab by viewModel.selectedTab.collectAsState()
     val savingGoals by viewModel.currentTabGoals.collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
-    
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("储蓄目标") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
-                    }
-                }
+
+    UnifiedScaffold(
+        title = "储蓄目标",
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "添加储蓄目标",
+                tint = Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddSavingGoal,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "添加储蓄目标")
-            }
-        }
+        onFloatingActionButtonClick = onAddSavingGoal
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             ScrollableTabRow(
@@ -78,7 +75,7 @@ fun SavingGoalScreen(
                 SavingGoalTab.values().forEach { tab ->
                     Tab(
                         selected = selectedTab == tab,
-                        onClick = { 
+                        onClick = {
                             coroutineScope.launch {
                                 viewModel.selectTab(tab)
                             }
@@ -96,7 +93,7 @@ fun SavingGoalScreen(
                     )
                 }
             }
-            
+
             if (savingGoals.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -114,17 +111,17 @@ fun SavingGoalScreen(
                             modifier = Modifier.size(100.dp),
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         )
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         Text(
                             text = "暂无储蓄目标",
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         Text(
                             text = "点击右下角的加号按钮创建您的第一个储蓄目标",
                             style = MaterialTheme.typography.bodyMedium,
@@ -132,9 +129,9 @@ fun SavingGoalScreen(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(horizontal = 32.dp)
                         )
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         Button(onClick = onAddSavingGoal) {
                             Icon(
                                 imageVector = Icons.Default.Add,
@@ -159,7 +156,7 @@ fun SavingGoalScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
-                    
+
                     item {
                         Spacer(modifier = Modifier.height(80.dp))
                     }
@@ -182,13 +179,11 @@ fun SavingGoalItem(
     val dateFormat = SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault())
     val isCompleted = goal.currentAmount >= goal.targetAmount
     val isExpired = !isCompleted && goal.targetDate.before(Date())
-    
-    Card(
+
+    PrimaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier
@@ -226,9 +221,9 @@ fun SavingGoalItem(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -243,7 +238,7 @@ fun SavingGoalItem(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f)
                         )
-                        
+
                         // 状态图标
                         when {
                             isCompleted -> {
@@ -272,9 +267,9 @@ fun SavingGoalItem(
                             }
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(4.dp))
-                    
+
                     // 进度百分比显示
                     Text(
                         text = "进度: ${(progress * 100).toInt()}%",
@@ -283,9 +278,9 @@ fun SavingGoalItem(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // 进度条
             LinearProgressIndicator(
                 progress = progress.toFloat().coerceIn(0f, 1f),
@@ -297,9 +292,9 @@ fun SavingGoalItem(
                 },
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -311,7 +306,7 @@ fun SavingGoalItem(
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 // 目标日期
                 Text(
                     text = dateFormat.format(goal.targetDate),
@@ -319,9 +314,9 @@ fun SavingGoalItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             // 状态标签
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -333,14 +328,14 @@ fun SavingGoalItem(
                     DateUtils.isDatesClose(Date(), goal.targetDate, 7) -> "即将到期"
                     else -> "进行中"
                 }
-                
+
                 val statusColor = when {
                     isCompleted -> MaterialTheme.colorScheme.primary
                     isExpired -> MaterialTheme.colorScheme.error
                     DateUtils.isDatesClose(Date(), goal.targetDate, 7) -> MaterialTheme.colorScheme.tertiary
                     else -> MaterialTheme.colorScheme.secondary
                 }
-                
+
                 Surface(
                     shape = RoundedCornerShape(4.dp),
                     color = statusColor.copy(alpha = 0.1f),
@@ -356,4 +351,4 @@ fun SavingGoalItem(
             }
         }
     }
-} 
+}

@@ -29,6 +29,9 @@ import com.ccjizhang.util.formatCurrency
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.coroutines.launch
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 
 /**
  * 储蓄目标详情界面
@@ -42,48 +45,46 @@ fun SavingGoalDetailScreen(
     viewModel: SavingGoalViewModel = hiltViewModel()
 ) {
     val coroutineScope = rememberCoroutineScope()
-    
+
     // 加载目标详情
     LaunchedEffect(goalId) {
         viewModel.selectGoal(goalId)
     }
-    
+
     val goalDetails by viewModel.selectedGoalDetails.collectAsState(initial = null)
-    
+
     // 对话框状态
     val showDeleteConfirmDialog = remember { mutableStateOf(false) }
     val showDepositDialog = remember { mutableStateOf(false) }
     val showWithdrawDialog = remember { mutableStateOf(false) }
-    
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("储蓄目标详情") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { onNavigateToEdit(goalId) }) {
-                        Icon(Icons.Default.Edit, contentDescription = "编辑")
-                    }
-                    IconButton(onClick = { showDeleteConfirmDialog.value = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = "删除")
-                    }
-                }
+
+    UnifiedScaffold(
+        title = "储蓄目标详情",
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = goalDetails?.let { !it.isCompleted && !it.isExpired } ?: false,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "存入资金",
+                tint = Color.White
             )
         },
-        floatingActionButton = {
-            goalDetails?.let { details ->
-                if (!details.isCompleted && !details.isExpired) {
-                    ExtendedFloatingActionButton(
-                        onClick = { showDepositDialog.value = true },
-                        icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                        text = { Text("存入资金") },
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                }
+        onFloatingActionButtonClick = { showDepositDialog.value = true },
+        actions = {
+            IconButton(onClick = { onNavigateToEdit(goalId) }) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "编辑",
+                    tint = Color.White
+                )
+            }
+            IconButton(onClick = { showDeleteConfirmDialog.value = true }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "删除",
+                    tint = Color.White
+                )
             }
         }
     ) { paddingValues ->
@@ -94,14 +95,14 @@ fun SavingGoalDetailScreen(
             val timeProgress = details.timeProgress
             val isCompleted = details.isCompleted
             val isExpired = details.isExpired
-            
+
             val dateFormat = SimpleDateFormat("yyyy年MM月dd日", Locale.getDefault())
             val remainingDays = if (!isCompleted && !isExpired) {
                 DateUtils.daysBetween(Date(), goal.targetDate)
             } else {
                 0
             }
-            
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -110,10 +111,8 @@ fun SavingGoalDetailScreen(
                     .padding(16.dp)
             ) {
                 // 头部卡片
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                PrimaryCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
@@ -148,18 +147,18 @@ fun SavingGoalDetailScreen(
                                 )
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // 目标名称
                         Text(
                             text = goal.name,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         // 状态标签
                         val (statusText, statusColor) = when {
                             isCompleted -> Pair("已完成", MaterialTheme.colorScheme.primary)
@@ -167,7 +166,7 @@ fun SavingGoalDetailScreen(
                             DateUtils.isDatesClose(Date(), goal.targetDate, 7) -> Pair("即将到期", MaterialTheme.colorScheme.tertiary)
                             else -> Pair("进行中", MaterialTheme.colorScheme.secondary)
                         }
-                        
+
                         Surface(
                             shape = RoundedCornerShape(16.dp),
                             color = statusColor.copy(alpha = 0.1f),
@@ -180,9 +179,9 @@ fun SavingGoalDetailScreen(
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // 进度显示
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -197,7 +196,7 @@ fun SavingGoalDetailScreen(
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                
+
                                 Text(
                                     text = goal.currentAmount.formatCurrency(),
                                     style = MaterialTheme.typography.titleLarge,
@@ -205,7 +204,7 @@ fun SavingGoalDetailScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }
-                            
+
                             Column(
                                 horizontalAlignment = Alignment.End
                             ) {
@@ -214,7 +213,7 @@ fun SavingGoalDetailScreen(
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                
+
                                 Text(
                                     text = goal.targetAmount.formatCurrency(),
                                     style = MaterialTheme.typography.titleLarge,
@@ -222,9 +221,9 @@ fun SavingGoalDetailScreen(
                                 )
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // 进度条和百分比
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -240,9 +239,9 @@ fun SavingGoalDetailScreen(
                                 },
                                 trackColor = MaterialTheme.colorScheme.surfaceVariant
                             )
-                            
+
                             Spacer(modifier = Modifier.height(4.dp))
-                            
+
                             Text(
                                 text = "完成度: ${(progress * 100).toInt()}%",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -251,13 +250,12 @@ fun SavingGoalDetailScreen(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // 详细信息卡片
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                SecondaryCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier
@@ -269,53 +267,53 @@ fun SavingGoalDetailScreen(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // 关联账户
                         InfoItem(
                             icon = Icons.Default.AccountBalance,
                             label = "关联账户",
                             value = account?.name ?: "未关联账户"
                         )
-                        
+
                         Divider(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 12.dp)
                         )
-                        
+
                         // 开始日期和目标日期
                         InfoItem(
                             icon = Icons.Default.CalendarToday,
                             label = "开始日期",
                             value = dateFormat.format(goal.startDate)
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         InfoItem(
                             icon = Icons.Default.Event,
                             label = "目标日期",
                             value = dateFormat.format(goal.targetDate)
                         )
-                        
+
                         if (!isCompleted && !isExpired) {
                             Spacer(modifier = Modifier.height(8.dp))
-                            
+
                             InfoItem(
                                 icon = Icons.Default.HourglassBottom,
                                 label = "剩余时间",
                                 value = "$remainingDays 天"
                             )
                         }
-                        
+
                         Divider(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 12.dp)
                         )
-                        
+
                         // 自动存款信息
                         if (goal.autoSaveAmount != null && goal.autoSaveFrequencyDays != null) {
                             InfoItem(
@@ -323,14 +321,14 @@ fun SavingGoalDetailScreen(
                                 label = "自动存款",
                                 value = "${goal.autoSaveAmount.formatCurrency()} / ${goal.autoSaveFrequencyDays}天"
                             )
-                            
+
                             Divider(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 12.dp)
                             )
                         }
-                        
+
                         // 备注
                         if (!goal.note.isNullOrBlank()) {
                             Text(
@@ -338,9 +336,9 @@ fun SavingGoalDetailScreen(
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            
+
                             Spacer(modifier = Modifier.height(4.dp))
-                            
+
                             Text(
                                 text = goal.note,
                                 style = MaterialTheme.typography.bodyMedium
@@ -348,9 +346,9 @@ fun SavingGoalDetailScreen(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // 操作按钮
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -372,14 +370,14 @@ fun SavingGoalDetailScreen(
                             Text("存入资金")
                         }
                     }
-                    
+
                     if (goal.currentAmount > 0) {
                         Button(
                             onClick = { showWithdrawDialog.value = true },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isCompleted) 
-                                    MaterialTheme.colorScheme.primary 
-                                else 
+                                containerColor = if (isCompleted)
+                                    MaterialTheme.colorScheme.primary
+                                else
                                     MaterialTheme.colorScheme.secondary
                             )
                         ) {
@@ -393,11 +391,11 @@ fun SavingGoalDetailScreen(
                         }
                     }
                 }
-                
+
                 // 底部空间，避免FAB遮挡
                 Spacer(modifier = Modifier.height(80.dp))
             }
-            
+
             // 删除确认对话框
             if (showDeleteConfirmDialog.value) {
                 AlertDialog(
@@ -424,7 +422,7 @@ fun SavingGoalDetailScreen(
                     }
                 )
             }
-            
+
             // 存入资金对话框
             if (showDepositDialog.value) {
                 TransactionDialog(
@@ -439,7 +437,7 @@ fun SavingGoalDetailScreen(
                     onDismiss = { showDepositDialog.value = false }
                 )
             }
-            
+
             // 取出资金对话框
             if (showWithdrawDialog.value) {
                 TransactionDialog(
@@ -487,9 +485,9 @@ private fun InfoItem(
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
-        
+
         Spacer(modifier = Modifier.width(8.dp))
-        
+
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -498,9 +496,9 @@ private fun InfoItem(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(2.dp))
-            
+
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium
@@ -522,7 +520,7 @@ fun TransactionDialog(
     var amountText by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    
+
     fun validateAmount(): Boolean {
         val amount = amountText.toDoubleOrNull()
         return when {
@@ -553,7 +551,7 @@ fun TransactionDialog(
             }
         }
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -573,7 +571,7 @@ fun TransactionDialog(
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = { Text("¥", style = MaterialTheme.typography.bodyLarge) }
                 )
-                
+
                 if (isError) {
                     Text(
                         text = errorMessage,
@@ -582,7 +580,7 @@ fun TransactionDialog(
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                     )
                 }
-                
+
                 if (maxAmount < Double.MAX_VALUE) {
                     Text(
                         text = "最大可用金额: ${maxAmount.formatCurrency()}",
@@ -613,4 +611,4 @@ fun TransactionDialog(
             }
         }
     )
-} 
+}

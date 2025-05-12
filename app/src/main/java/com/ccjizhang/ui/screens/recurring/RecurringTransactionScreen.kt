@@ -24,6 +24,9 @@ import com.ccjizhang.data.model.RecurringTransaction
 import com.ccjizhang.ui.common.EmptyContent
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.components.ConfirmDeleteDialog
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.viewmodels.RecurringTransactionViewModel
@@ -47,26 +50,20 @@ fun RecurringTransactionScreen(
     val isLoading = false
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedTransaction by remember { mutableStateOf<RecurringTransaction?>(null) }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(R.string.recurring_transactions),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack
+
+    UnifiedScaffold(
+        title = stringResource(R.string.recurring_transactions),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.add_recurring_transaction),
+                tint = Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddRecurringTransaction,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_recurring_transaction)
-                )
-            }
-        }
+        onFloatingActionButtonClick = onNavigateToAddRecurringTransaction
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             TabRow(selectedTabIndex = selectedTab.ordinal) {
@@ -122,7 +119,7 @@ fun RecurringTransactionScreen(
             }
         }
     }
-    
+
     if (showDeleteDialog && selectedTransaction != null) {
         ConfirmDeleteDialog(
             title = stringResource(R.string.delete_recurring_transaction),
@@ -156,13 +153,10 @@ fun RecurringTransactionItem(
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
     val viewModel: RecurringTransactionViewModel = hiltViewModel()
 
-    Card(
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onItemClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            .clickable(onClick = onItemClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -177,7 +171,7 @@ fun RecurringTransactionItem(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 Box {
                     IconButton(onClick = { showMenu = true }) {
                         Icon(
@@ -185,7 +179,7 @@ fun RecurringTransactionItem(
                             contentDescription = stringResource(R.string.more_options)
                         )
                     }
-                    
+
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
@@ -219,22 +213,22 @@ fun RecurringTransactionItem(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = currencyFormatter.format(transaction.amount),
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (transaction.type == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             Text(
                 text = "下次: ${viewModel.getNextExecutionDateDescription(transaction)}",
                 style = MaterialTheme.typography.bodySmall
             )
-            
+
             Text(
                 text = "频率: ${viewModel.getRecurrenceTypeDescription(transaction)}",
                 style = MaterialTheme.typography.bodySmall
@@ -251,4 +245,4 @@ val RecurringTransactionTab.titleResId: Int
         RecurringTransactionTab.COMPLETED -> R.string.app_name
         RecurringTransactionTab.UPCOMING -> R.string.app_name
         RecurringTransactionTab.ALL -> R.string.app_name
-    } 
+    }

@@ -20,6 +20,9 @@ import com.ccjizhang.data.model.RecurringTransaction
 import com.ccjizhang.ui.common.EmptyContent
 import com.ccjizhang.ui.common.LoadingContent
 import com.ccjizhang.ui.components.CCJiZhangTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.components.ConfirmDeleteDialog
 import com.ccjizhang.ui.components.InfoRow
 import com.ccjizhang.ui.viewmodels.RecurringTransactionViewModel
@@ -44,39 +47,38 @@ fun RecurringTransactionDetailScreen(
     val isLoading = false // Placeholder - Assuming false for now
     val transaction by viewModel.selectedTransactionDetails.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(transactionId) {
         viewModel.selectTransactionDetails(transactionId)
     }
-    
+
     LaunchedEffect(key1 = transaction, key2 = isLoading) {
         if (transaction == null && !isLoading) {
             onNavigateBack()
         }
     }
-    
-    Scaffold(
-        topBar = {
-            CCJiZhangTopAppBar(
-                title = stringResource(R.string.recurring_transaction_details),
-                canNavigateBack = true,
-                onNavigateBack = onNavigateBack,
-                actions = {
-                    IconButton(onClick = { onNavigateToEditTransaction(transactionId) }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.edit)
-                        )
-                    }
-                    
-                    IconButton(onClick = { showDeleteDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.delete)
-                        )
-                    }
-                }
-            )
+
+    UnifiedScaffold(
+        title = stringResource(R.string.recurring_transaction_details),
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = false,
+        actions = {
+            IconButton(onClick = { onNavigateToEditTransaction(transactionId) }) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(R.string.edit),
+                    tint = androidx.compose.ui.graphics.Color.White
+                )
+            }
+
+            IconButton(onClick = { showDeleteDialog = true }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete),
+                    tint = androidx.compose.ui.graphics.Color.White
+                )
+            }
         }
     ) { innerPadding ->
         when {
@@ -99,7 +101,7 @@ fun RecurringTransactionDetailScreen(
             else -> {
                 val currencyFormatter = remember { NumberFormat.getCurrencyInstance() }
                 val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
-                
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -109,11 +111,8 @@ fun RecurringTransactionDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     // Header with amount
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                    PrimaryCard(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
                             modifier = Modifier
@@ -126,33 +125,30 @@ fun RecurringTransactionDetailScreen(
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
-                            
+
                             Spacer(modifier = Modifier.height(8.dp))
-                            
+
                             Text(
                                 text = currencyFormatter.format(transaction!!.amount),
                                 style = MaterialTheme.typography.headlineMedium,
-                                color = if (transaction!!.type == 0) 
-                                    MaterialTheme.colorScheme.error 
-                                else 
+                                color = if (transaction!!.type == 0)
+                                    MaterialTheme.colorScheme.error
+                                else
                                     MaterialTheme.colorScheme.primary
                             )
-                            
+
                             Spacer(modifier = Modifier.height(4.dp))
-                            
+
                             Text(
                                 text = viewModel.getRecurrenceTypeDescription(transaction!!),
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
                     }
-                    
+
                     // Transaction details
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    SecondaryCard(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
                             modifier = Modifier
@@ -161,34 +157,34 @@ fun RecurringTransactionDetailScreen(
                         ) {
                             InfoRow(
                                 label = stringResource(R.string.account),
-                                value = "账户 ID: ${transaction!!.fromAccountId}" + 
+                                value = "账户 ID: ${transaction!!.fromAccountId}" +
                                         if (transaction!!.toAccountId != null) " -> ${transaction!!.toAccountId}" else ""
                             )
-                            
+
                             Divider(modifier = Modifier.padding(vertical = 8.dp))
-                            
+
                             InfoRow(
                                 label = stringResource(R.string.category),
                                 value = transaction!!.categoryId?.toString() ?: "无"
                             )
-                            
+
                             Divider(modifier = Modifier.padding(vertical = 8.dp))
-                            
+
                             InfoRow(
                                 label = stringResource(R.string.next_occurrence),
                                 value = viewModel.getNextExecutionDateDescription(transaction!!)
                             )
-                            
+
                             if (transaction!!.note?.isNotBlank() == true) {
                                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                                
+
                                 Text(
                                     text = stringResource(R.string.notes),
                                     style = MaterialTheme.typography.labelLarge
                                 )
-                                
+
                                 Spacer(modifier = Modifier.height(4.dp))
-                                
+
                                 Text(
                                     text = transaction!!.note ?: "",
                                     style = MaterialTheme.typography.bodyMedium
@@ -200,7 +196,7 @@ fun RecurringTransactionDetailScreen(
             }
         }
     }
-    
+
     if (showDeleteDialog) {
         ConfirmDeleteDialog(
             title = stringResource(R.string.delete_recurring_transaction),
@@ -218,4 +214,4 @@ fun RecurringTransactionDetailScreen(
             }
         )
     }
-} 
+}

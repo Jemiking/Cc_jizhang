@@ -181,8 +181,7 @@ fun TagManagementScreen(
                     )
                 }
             }
-        },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier

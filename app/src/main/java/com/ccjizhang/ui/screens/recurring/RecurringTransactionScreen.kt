@@ -60,7 +60,7 @@ fun RecurringTransactionScreen(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = stringResource(R.string.add_recurring_transaction),
-                tint = Color.White
+                tint = androidx.compose.ui.graphics.Color.White
             )
         },
         onFloatingActionButtonClick = onNavigateToAddRecurringTransaction

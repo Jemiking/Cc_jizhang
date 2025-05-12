@@ -163,42 +163,6 @@ fun CategoryManagementScreen(
                     )
                 }
             }
-        },
-        floatingActionButton = {
-            if (selectedParentId == null) {
-                // 在顶级分类列表显示添加分类按钮
-                FloatingActionButton(
-                    onClick = { showAddCategoryDialog = true },
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "添加分类",
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            } else {
-                // 在子分类列表显示添加子分类按钮
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        // 获取父分类并显示添加子分类对话框
-                        val parentCategory = categories.find { it.category.id == selectedParentId }
-                        if (parentCategory != null) {
-                            selectedParentCategory = parentCategory
-                            showAddChildDialog = true
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "添加子分类"
-                        )
-                    },
-                    text = { Text("添加子分类") },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            }
         }
     ) { paddingValues ->
         Column(

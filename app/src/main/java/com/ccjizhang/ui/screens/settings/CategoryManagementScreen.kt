@@ -76,6 +76,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Category
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.CategoryViewModel
 import com.ccjizhang.ui.viewmodels.CategoryWithIcon
 import com.ccjizhang.ui.navigation.NavRoutes
@@ -115,13 +118,31 @@ fun CategoryManagementScreen(
         viewModel.loadCategories()
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = if (selectedParentId == null) "分类管理" else {
             val parentCategory = categories.find { it.category.id == selectedParentId }
             "子分类 - ${parentCategory?.category?.name ?: ""}"
         },
         navController = navController,
         showBackButton = true,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "添加分类",
+                tint = Color.White
+            )
+        },
+        onFloatingActionButtonClick = {
+            if (selectedParentId == null) {
+                // 添加顶级分类
+                showAddCategoryDialog = true
+            } else {
+                // 添加子分类
+                selectedParentCategory = categories.find { it.category.id == selectedParentId }
+                showAddChildDialog = true
+            }
+        },
         actions = {
             // 添加视图切换按钮
             IconButton(onClick = { viewModel.toggleViewMode() }) {
@@ -460,9 +481,8 @@ fun CategoryItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    SecondaryCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -520,9 +540,8 @@ fun HierarchicalCategoryItem(
     onDelete: () -> Unit,
     onSelect: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    SecondaryCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier

@@ -53,6 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.TagViewModel
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.navigation.NavParametersUnified
@@ -134,24 +137,19 @@ fun TagManagementScreen(
         }
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "标签管理",
         navController = navController,
         showBackButton = true,
-        floatingActionButton = {
-            if (!selectionMode) {
-                FloatingActionButton(
-                    onClick = { showAddTagDialog = true },
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "添加标签",
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            }
+        showFloatingActionButton = !selectionMode,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "添加标签",
+                tint = Color.White
+            )
         },
+        onFloatingActionButtonClick = { showAddTagDialog = true },
         actions = {
             if (isSearchActive) {
                 IconButton(onClick = {
@@ -356,12 +354,10 @@ fun TagItemView(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    Card(
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onTagClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(8.dp)
+            .clickable { onTagClick() }
     ) {
         Row(
             modifier = Modifier

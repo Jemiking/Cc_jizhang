@@ -74,6 +74,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.viewmodels.BackupRestoreViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -384,10 +387,11 @@ fun DataBackupScreen(
     }
 
     // 主界面
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "数据备份与恢复",
         navController = navController,
-        showBackButton = true
+        showBackButton = true,
+        showFloatingActionButton = false
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -402,7 +406,7 @@ fun DataBackupScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 // 自动备份设置卡片
-                Card(
+                PrimaryCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)

@@ -21,6 +21,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Account
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.viewmodels.AccountViewModel
 import com.ccjizhang.ui.viewmodels.TransactionViewModel
@@ -79,10 +82,11 @@ fun AccountDetailScreen(
         // }
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = account?.name ?: "账户详情",
         navController = navController,
         showBackButton = true,
+        showFloatingActionButton = false,
         actions = {
             IconButton(onClick = {
                 accountId.let { id -> navController.navigate(NavRoutes.accountEdit(id)) }
@@ -186,9 +190,8 @@ fun AccountDetailContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // 账户余额卡片
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        PrimaryCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
@@ -216,9 +219,8 @@ fun AccountDetailContent(
         }
 
         // 账户操作卡片
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        SecondaryCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
@@ -247,9 +249,8 @@ fun AccountDetailContent(
         }
 
         // 账户详情卡片
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        SecondaryCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier

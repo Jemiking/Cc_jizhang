@@ -90,15 +90,12 @@ fun CCJiZhangTheme(
         SideEffect {
             val window = (view.context as Activity).window
 
-            // 设置状态栏颜色
-            window.statusBarColor = colorScheme.primary.toArgb()
-
             // 设置导航栏颜色与应用背景色匹配
             window.navigationBarColor = colorScheme.surface.toArgb()
 
-            // 设置状态栏内容颜色
+            // 设置导航栏内容颜色
             WindowCompat.getInsetsController(window, view).apply {
-                isAppearanceLightStatusBars = !useDarkTheme
+                // 状态栏颜色已在MainActivity中设置
                 isAppearanceLightNavigationBars = !useDarkTheme
             }
         }

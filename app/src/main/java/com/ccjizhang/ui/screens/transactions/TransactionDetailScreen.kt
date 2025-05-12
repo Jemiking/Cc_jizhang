@@ -53,6 +53,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ccjizhang.data.model.Transaction
 import com.ccjizhang.ui.components.MainTopAppBar
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.theme.ExpenseRed
 import com.ccjizhang.ui.theme.IncomeGreen
@@ -76,58 +79,46 @@ fun TransactionDetailScreen(
     navController: NavHostController,
     onNavigateBack: () -> Unit = { navController.popBackStack() },
     onNavigateToEdit: (Long) -> Unit = { id -> navController.navigate(NavRoutes.transactionEdit(id)) },
-    onDeleteSuccess: () -> Unit = { navController.popBackStack() }, 
+    onDeleteSuccess: () -> Unit = { navController.popBackStack() },
     viewModel: TransactionViewModel = hiltViewModel()
 ) {
     // 加载交易数据
     LaunchedEffect(transactionId) {
         viewModel.loadTransactionDetails(transactionId)
     }
-    
+
     // 收集状态
     val transaction = viewModel.selectedTransaction.collectAsState().value
     val isLoading = viewModel.isLoading.collectAsState().value
-    
+
     // 删除确认对话框状态
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
-    
-    Scaffold(
-        topBar = {
-            MainTopAppBar(
-                title = "交易详情",
-                showBackButton = true,
-                onBackClick = onNavigateBack
-            )
-        },
-        floatingActionButton = {
+
+    UnifiedScaffold(
+        title = "交易详情",
+        showBackButton = true,
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = false,
+        actions = {
             if (transaction != null) {
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                androidx.compose.material3.IconButton(
+                    onClick = { onNavigateToEdit(transactionId) }
                 ) {
-                    FloatingActionButton(
-                        onClick = { showDeleteConfirmDialog = true },
-                        containerColor = ExpenseRed,
-                        contentColor = Color.White
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "删除"
-                        )
-                    }
-                    
-                    FloatingActionButton(
-                        onClick = {
-                            onNavigateToEdit(transactionId)
-                        },
-                        containerColor = PrimaryDark,
-                        contentColor = Color.White
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "编辑"
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "编辑",
+                        tint = Color.White
+                    )
+                }
+
+                androidx.compose.material3.IconButton(
+                    onClick = { showDeleteConfirmDialog = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "删除",
+                        tint = Color.White
+                    )
                 }
             }
         }
@@ -153,7 +144,7 @@ fun TransactionDetailScreen(
                 onBackClick = onNavigateBack
             )
         }
-        
+
         // 删除确认对话框
         if (showDeleteConfirmDialog) {
             AlertDialog(
@@ -192,7 +183,7 @@ fun TransactionDetailContent(
     // 格式化日期
     val dateFormat = SimpleDateFormat("yyyy年MM月dd日 HH:mm", Locale.getDefault())
     val formattedDate = dateFormat.format(transaction.date)
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -202,13 +193,8 @@ fun TransactionDetailContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // 金额和类别卡片
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = if (!transaction.isIncome) ExpenseRed else IncomeGreen,
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp)
+        PrimaryCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
@@ -225,40 +211,36 @@ fun TransactionDetailContent(
                         tint = Color.White,
                         backgroundColor = Color.White.copy(alpha = 0.2f)
                     )
-                    
+
                     Spacer(modifier = Modifier.width(12.dp))
-                    
+
                     Text(
                         text = "交易类别", // 在实际实现中应该从分类仓库获取名称
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = if (!transaction.isIncome) "-¥${transaction.amount}" else "+¥${transaction.amount}",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text(
                     text = transaction.note.ifEmpty { "无备注" },
                     style = MaterialTheme.typography.titleMedium
                 )
             }
         }
-        
+
         // 详细信息卡片
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            shape = RoundedCornerShape(16.dp)
+        SecondaryCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
@@ -268,11 +250,11 @@ fun TransactionDetailContent(
                 DetailItem(label = "日期和时间", value = formattedDate)
                 DetailItem(label = "账户", value = "账户名称") // 从账户仓库获取名称
                 DetailItem(label = "交易类型", value = if (transaction.isIncome) "收入" else "支出")
-                
+
                 if (transaction.note.isNotEmpty()) {
                     DetailItem(label = "备注", value = transaction.note)
                 }
-                
+
                 // 位置信息（如果有）
                 if (transaction.location.isNotEmpty()) {
                     DetailItem(
@@ -281,7 +263,7 @@ fun TransactionDetailContent(
                         icon = Icons.Default.LocationOn
                     )
                 }
-                
+
                 // 图片附件（如果有）
                 if (transaction.imageUri.isNotEmpty()) {
                     DetailItem(
@@ -308,9 +290,9 @@ fun TransactionDetailContent(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Button(
             onClick = onBackClick,
             modifier = Modifier.fillMaxWidth(),
@@ -346,16 +328,16 @@ fun DetailItem(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
-            
+
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         if (content != null) {
             content()
         } else {
@@ -365,7 +347,7 @@ fun DetailItem(
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-        
+
         if (!isLast) {
             Divider(
                 modifier = Modifier.padding(top = 12.dp),
@@ -385,4 +367,4 @@ fun DetailItemPreview() {
             value = "2023年5月15日 12:30"
         )
     }
-} 
+}

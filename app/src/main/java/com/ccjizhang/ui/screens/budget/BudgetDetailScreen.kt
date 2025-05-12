@@ -51,6 +51,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Budget
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.BudgetViewModel
 import com.ccjizhang.ui.viewmodels.TransactionViewModel
 import com.ccjizhang.ui.viewmodels.CategoryViewModel
@@ -81,10 +84,11 @@ fun BudgetDetailScreen(
         categoryViewModel.loadCategories()
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = budget?.name ?: "预算详情",
         navController = navController,
         showBackButton = true,
+        showFloatingActionButton = false,
         actions = {
             IconButton(onClick = {
                 // 导航到编辑预算页面
@@ -232,15 +236,8 @@ fun BudgetSummaryCard(
     val usagePercentage = if (totalAmount > 0) (usedAmount / totalAmount) * 100 else 0.0
     val isOverBudget = usedAmount > totalAmount
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isOverBudget)
-                MaterialTheme.colorScheme.errorContainer
-            else
-                MaterialTheme.colorScheme.primaryContainer
-        )
+    PrimaryCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -333,9 +330,8 @@ fun CategoryBudgetItem(
     val usagePercentage = if (totalAmount > 0) (usedAmount / totalAmount) * 100 else 0.0
     val isOverBudget = usedAmount > totalAmount
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    SecondaryCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier

@@ -19,6 +19,8 @@ import com.ccjizhang.ui.navigation.wrapped.WrappedAddEditBudgetScreenUnified
 import com.ccjizhang.ui.navigation.wrapped.WrappedBudgetDetailScreenUnified
 import com.ccjizhang.ui.navigation.wrapped.WrappedAccountCategoryManagementScreenUnified
 import com.ccjizhang.ui.navigation.wrapped.WrappedAccountManagementScreenEnhancedUnified
+import com.ccjizhang.ui.navigation.wrapped.WrappedNewHomeScreenUnified
+import com.ccjizhang.ui.navigation.wrapped.WrappedBudgetsScreenUnified
 
 /**
  * 统一导航图
@@ -43,7 +45,7 @@ fun UnifiedNavGraph(
             popEnterTransition = NavAnimations.horizontalSlidePopEnterTransition,
             popExitTransition = NavAnimations.horizontalSlidePopExitTransition
         ) {
-            WrappedHomeScreenUnified(navController = navController)
+            WrappedNewHomeScreenUnified(navController = navController)
         }
 
         composable(
@@ -569,7 +571,7 @@ fun UnifiedNavGraph(
 
         // 预算列表页面
         composable(route = NavRoutes.AllBudgets) {
-            WrappedAccountsScreenUnified(navController = navController)
+            WrappedBudgetsScreenUnified(navController = navController)
         }
 
         // 添加/编辑预算页面

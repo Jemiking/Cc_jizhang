@@ -82,6 +82,7 @@ import com.ccjizhang.ui.components.AppInfoDialog
 import com.ccjizhang.ui.components.ClearDataConfirmDialog
 import com.ccjizhang.ui.components.FeedbackDialog
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
 import com.ccjizhang.ui.components.SettingsItem
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.theme.CCJiZhangTheme
@@ -168,12 +169,12 @@ fun SettingsScreen(
         )
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "设置",
         navController = navController,
         showBackButton = true,
         onBackClick = onNavigateBack,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        showFloatingActionButton = false
     ) { paddingValues ->
         // 显示加载状态
         if (settingsState.isLoading) {
@@ -357,7 +358,7 @@ fun SettingsScreen(
  */
 @Composable
 fun UserProfileCard(navController: NavHostController) {
-    ElevatedCard(
+    com.ccjizhang.ui.components.PrimaryCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp)
@@ -366,9 +367,7 @@ fun UserProfileCard(navController: NavHostController) {
                 onClick = { navController.navigate(NavRoutes.UserProfile) },
                 // 添加语义属性，提高屏幕阅读器可用性
                 onClickLabel = "编辑个人资料"
-            ),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            )
     ) {
         Row(
             modifier = Modifier

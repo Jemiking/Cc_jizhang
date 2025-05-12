@@ -24,6 +24,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Transaction
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.viewmodels.StatisticsDetailViewModel
 import com.ccjizhang.ui.viewmodels.StatsTab
@@ -51,11 +54,12 @@ fun StatisticsDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showFilterDialog by remember { mutableStateOf(false) }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = uiState.title,
         navController = navController,
         onBackClick = onNavigateBack,
         showBackButton = true,
+        showFloatingActionButton = false,
         actions = {
             // 筛选按钮
             IconButton(onClick = { showFilterDialog = true }) {
@@ -282,12 +286,10 @@ fun TotalAmountDetailCard(
         StatsTab.NET -> if (amount >= 0) Color(0xFF43A047) else Color(0xFFE53935)
     }
 
-    ElevatedCard(
+    PrimaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            .padding(vertical = 8.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -323,12 +325,10 @@ fun DetailedTrendChart(
 ) {
     // 这里将在后续实现更详细的趋势图
     // 暂时使用与主统计页面相同的图表组件
-    ElevatedCard(
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            .padding(vertical = 8.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -359,12 +359,10 @@ fun DetailedCategoryPieChart(
 ) {
     // 这里将在后续实现更详细的饼图
     // 暂时使用与主统计页面相同的图表组件
-    ElevatedCard(
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            .padding(vertical = 8.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

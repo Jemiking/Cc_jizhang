@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Budget
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
 import com.ccjizhang.ui.viewmodels.BudgetViewModel
 import com.ccjizhang.ui.viewmodels.CategoryViewModel
 import com.ccjizhang.ui.viewmodels.CategoryWithIcon
@@ -110,10 +111,11 @@ fun AddEditBudgetScreen(
         }
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = if (budgetId == null) "添加预算" else "编辑预算",
         navController = navController,
-        showBackButton = true
+        showBackButton = true,
+        showFloatingActionButton = false
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -297,11 +299,10 @@ fun CategorySelectionItem(
     isSelected: Boolean,
     onSelectionChanged: (Boolean) -> Unit
 ) {
-    Card(
+    com.ccjizhang.ui.components.SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onSelectionChanged(!isSelected) },
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            .clickable { onSelectionChanged(!isSelected) }
     ) {
         Row(
             modifier = Modifier

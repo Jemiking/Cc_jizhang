@@ -87,6 +87,7 @@ import com.ccjizhang.ui.components.CategoryIcon
 import com.ccjizhang.ui.components.MainTopAppBar
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
 import com.ccjizhang.ui.components.TransactionItem
+import com.ccjizhang.ui.components.UnifiedScaffold
 import com.ccjizhang.ui.screens.transactions.EmptySearchState
 import com.ccjizhang.ui.screens.transactions.EmptyTransactionState
 import com.ccjizhang.ui.screens.transactions.TransactionSkeletonLoader
@@ -141,10 +142,24 @@ fun TransactionsScreen(
     // 批量操作菜单状态
     var showBatchMenu by remember { mutableStateOf(false) }
 
-    RoundedTopBarScaffold(
+    // 加载交易数据
+    LaunchedEffect(filterType) {
+        viewModel.loadTransactions()
+    }
+
+    UnifiedScaffold(
         title = if (isBatchModeActive) "已选择 ${selectedTransactions.size} 项" else "交易历史",
         navController = navController,
         showBackButton = isBatchModeActive,
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "添加交易",
+                tint = Color.White
+            )
+        },
+        onFloatingActionButtonClick = onNavigateToAddTransaction,
         actions = {
             if (isBatchModeActive) {
                 // 批量操作模式下的操作按钮
@@ -812,14 +827,11 @@ fun TransactionItem(
     val amountText = String.format("%.2f", transaction.amount)
     val formattedAmount = if (transaction.isIncome) "+¥$amountText" else "-¥$amountText"
 
-    Surface(
+    com.ccjizhang.ui.components.ClickableSecondaryCard(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        color = backgroundColor,
-        tonalElevation = 1.dp
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -963,12 +975,10 @@ fun TransactionGroupHeader(
     val netAmount = income - expense
     val formattedNetAmount = String.format("%.2f", netAmount)
 
-    Surface(
+    com.ccjizhang.ui.components.SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Column(
             modifier = Modifier

@@ -36,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -145,64 +146,56 @@ fun AddEditTransactionScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (transactionId > 0) "编辑交易" else "添加交易") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
-                    }
-                }
+    UnifiedScaffold(
+        title = if (transactionId > 0) "编辑交易" else "添加交易",
+        showBackButton = true,
+        onBackClick = { navController.popBackStack() },
+        showFloatingActionButton = true,
+        floatingActionButtonContent = {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "保存",
+                tint = Color.White
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    // 验证输入
-                    if (amount.isBlank() || amount.toDoubleOrNull() == null) {
-                        amountError = true
-                        return@FloatingActionButton
-                    }
+        onFloatingActionButtonClick = {
+            // 验证输入
+            if (amount.isBlank() || amount.toDoubleOrNull() == null) {
+                amountError = true
+                return@UnifiedScaffold
+            }
 
-                    // 保存交易记录
-                    val amountValue = amount.toDouble()
+            // 保存交易记录
+            val amountValue = amount.toDouble()
 
-                    // 使用viewModel的方法保存交易
-                    if (transactionId > 0) {
-                        viewModel.updateTransaction(
-                            Transaction(
-                                id = transactionId,
-                                amount = amountValue,
-                                note = note,
-                                isIncome = isIncome,
-                                accountId = accountId,
-                                categoryId = categoryId,
-                                date = date
-                            )
-                        )
-                    } else {
-                        viewModel.addTransaction(
-                            Transaction(
-                                amount = amountValue,
-                                note = note,
-                                isIncome = isIncome,
-                                accountId = accountId,
-                                categoryId = categoryId,
-                                date = date
-                            )
-                        )
-                    }
-
-                    // 返回上一页
-                    navController.popBackStack()
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "保存"
+            // 使用viewModel的方法保存交易
+            if (transactionId > 0) {
+                viewModel.updateTransaction(
+                    Transaction(
+                        id = transactionId,
+                        amount = amountValue,
+                        note = note,
+                        isIncome = isIncome,
+                        accountId = accountId,
+                        categoryId = categoryId,
+                        date = date
+                    )
+                )
+            } else {
+                viewModel.addTransaction(
+                    Transaction(
+                        amount = amountValue,
+                        note = note,
+                        isIncome = isIncome,
+                        accountId = accountId,
+                        categoryId = categoryId,
+                        date = date
+                    )
                 )
             }
+
+            // 返回上一页
+            navController.popBackStack()
         }
     ) { paddingValues ->
         Surface(
@@ -217,12 +210,8 @@ fun AddEditTransactionScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // 收入/支出选择器
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+                com.ccjizhang.ui.components.SecondaryCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
                         modifier = Modifier

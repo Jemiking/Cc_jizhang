@@ -92,6 +92,7 @@ import com.ccjizhang.ui.theme.ExpenseRed
 import com.ccjizhang.ui.theme.IncomeGreen
 import com.ccjizhang.ui.theme.PrimaryDark
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
 import com.ccjizhang.ui.viewmodels.BudgetViewModel
 import java.text.NumberFormat
 import java.util.Locale
@@ -123,23 +124,12 @@ fun BudgetScreen(
         viewModel.loadBudgets()
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "预算管理",
         navController = navController,
-        onBackClick = onNavigateBack,
         showBackButton = true,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddBudget,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "添加预算",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
+        onBackClick = onNavigateBack,
+        showFloatingActionButton = false
     ) { paddingValues ->
         if (isLoading) {
             Box(

@@ -71,12 +71,13 @@ fun RoundedTopBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            // 确保背景色延伸到状态栏
+            // 确保背景色完全延伸到状态栏
+            .height(56.dp + statusBarHeight)
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .background(PrimaryDark)
     ) {
-        // 在内容容器上添加padding，但减少额外空间，使标题更靠近顶部
-        Box(modifier = Modifier.padding(top = statusBarHeight * 0.6f)) {
+        // 在内容容器上添加padding等于状态栏高度，确保内容不被状态栏遮挡
+        Box(modifier = Modifier.padding(top = statusBarHeight)) {
             content()
         }
     }

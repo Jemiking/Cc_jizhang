@@ -22,6 +22,7 @@ import com.ccjizhang.data.model.AccountType
 import com.ccjizhang.data.model.Currency
 import com.ccjizhang.ui.components.CurrencyDropdown
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
 import com.ccjizhang.ui.viewmodels.AccountViewModel
 import com.ccjizhang.ui.common.OperationResult
 import com.ccjizhang.ui.navigation.NavRoutes
@@ -102,10 +103,11 @@ fun AccountEditScreen(
     // 页面标题
     val title = if (isEditing) "编辑账户" else "添加账户"
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = title,
         navController = navController,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        showBackButton = true,
+        showFloatingActionButton = false,
         actions = {
             IconButton(onClick = {
                 // 保存账户信息

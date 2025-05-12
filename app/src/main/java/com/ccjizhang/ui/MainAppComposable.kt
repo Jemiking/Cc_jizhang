@@ -170,6 +170,7 @@ private fun CCJiZhangFloatingActionButton(
     isBottomBarVisible: Boolean,
     currentRoute: String?
 ) {
+    // 在底部导航栏可见时显示浮动按钮
     if (isBottomBarVisible) {
         FloatingActionButton(
             onClick = { navController.navigate(NavRoutes.TransactionAdd) },

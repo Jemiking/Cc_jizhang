@@ -108,6 +108,17 @@ fun WrappedStatsScreenUnified(navController: NavHostController) {
 fun WrappedAccountsScreenUnified(navController: NavHostController) {
     NavWrapper(navController) { nav ->
         val navParams = createUnifiedNavParameters(nav)
+        AccountManagementScreen(navController = nav)
+    }
+}
+
+/**
+ * 预算页面的包装组件
+ */
+@Composable
+fun WrappedBudgetsScreenUnified(navController: NavHostController) {
+    NavWrapper(navController) { nav ->
+        val navParams = createUnifiedNavParameters(nav)
         BudgetScreen(
             navController = nav,
             onNavigateBack = navParams.onNavigateBack,

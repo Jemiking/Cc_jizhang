@@ -13,6 +13,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 // 自定义颜色
+val Primary = Color(0xFF2196F3) // 蓝色，与截图中的APP状态栏颜色一致
 val PrimaryDark = Color(0xFF4E2A84)
 val PrimaryLight = Color(0xFFB39DDB)
 val Secondary = Color(0xFF43A047) // 绿色
@@ -46,7 +47,7 @@ val TextDisabled = Color(0xFFBDBDBD)
  */
 fun Color.luminance(): Float {
     val colorInLinearSpace = convert(ColorSpaces.LinearSrgb)
-    return (0.2126f * colorInLinearSpace.red + 
+    return (0.2126f * colorInLinearSpace.red +
             0.7152f * colorInLinearSpace.green +
             0.0722f * colorInLinearSpace.blue).coerceIn(0f, 1f)
-} 
+}

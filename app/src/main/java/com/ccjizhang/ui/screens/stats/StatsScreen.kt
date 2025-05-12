@@ -68,6 +68,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.components.charts.CompletePieChart
 import com.ccjizhang.ui.components.dialogs.DateRangePickerDialog
 import com.ccjizhang.ui.theme.CCJiZhangTheme
@@ -93,11 +96,12 @@ fun StatsScreen(
 
 
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "统计分析",
         navController = navController,
         onBackClick = onNavigateBack,
         showBackButton = true,
+        showFloatingActionButton = false,
         actions = {}
     ) { paddingValues ->
         if (uiState.isLoading) {
@@ -342,12 +346,10 @@ fun TotalAmountCard(
 ) {
     val formatter = DecimalFormat("#,##0.00")
 
-    ElevatedCard(
+    PrimaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            .padding(bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -392,12 +394,10 @@ fun TotalAmountCard(
 
 @Composable
 fun SavingsRateCard(savingsRate: Double) {
-    ElevatedCard(
+    PrimaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            .padding(bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -435,12 +435,10 @@ fun CategoryPieChart(
 ) {
     val formatter = DecimalFormat("#,##0")
 
-    ElevatedCard(
+    PrimaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            .padding(bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -569,12 +567,10 @@ fun CategoryRankingList(
     title: String,
     categories: List<com.ccjizhang.ui.viewmodels.CategoryStatistics>
 ) {
-    ElevatedCard(
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        colors = CardDefaults.elevatedCardColors(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+            .padding(bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

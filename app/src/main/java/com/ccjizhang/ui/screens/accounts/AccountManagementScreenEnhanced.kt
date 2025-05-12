@@ -62,6 +62,9 @@ import com.ccjizhang.data.model.AccountCategory
 import com.ccjizhang.data.model.AccountSortType
 import com.ccjizhang.data.model.displayName
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import androidx.compose.material.icons.filled.Check
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.viewmodels.AccountViewModel
@@ -92,9 +95,10 @@ fun AccountManagementScreenEnhanced(
         viewModel.loadAccounts()
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "账户管理",
         navController = navController,
+        showFloatingActionButton = false,
         actions = {
             // 排序按钮
             IconButton(onClick = { showSortMenu = true }) {
@@ -151,7 +155,7 @@ fun AccountManagementScreenEnhanced(
         ) {
             // 总资产卡片
             item {
-                Card(
+                PrimaryCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)

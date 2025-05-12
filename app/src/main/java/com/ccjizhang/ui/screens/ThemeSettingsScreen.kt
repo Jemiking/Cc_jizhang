@@ -44,6 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.theme.luminance
 import com.ccjizhang.ui.viewmodels.ThemeViewModel
 
@@ -66,10 +69,11 @@ fun ThemeSettingsScreen(
     // 使用ThemeManager的状态，确保整个应用共享同一个主题状态
     val themeState = themeManager.themeState.value
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "主题设置",
         onBackClick = { onNavigateBack() },
-        showBackButton = true
+        showBackButton = true,
+        showFloatingActionButton = false
     ) { paddingValues ->
         // 显示加载状态
         if (themeState.isLoading) {
@@ -163,18 +167,11 @@ fun ThemeModeOption(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    Card(
+    SecondaryCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected)
-                MaterialTheme.colorScheme.primaryContainer
-            else
-                MaterialTheme.colorScheme.surface
-        ),
-        shape = RoundedCornerShape(12.dp)
+            .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier

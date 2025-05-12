@@ -35,6 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.navigation.NavParametersUnified
 import com.ccjizhang.ui.navigation.createUnifiedNavParameters
@@ -50,10 +53,11 @@ fun NotificationSettingsScreen(
 ) {
     val notificationState by viewModel.notificationState.collectAsState()
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "通知设置",
         navController = navController,
-        showBackButton = true
+        showBackButton = true,
+        showFloatingActionButton = false
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -188,13 +192,10 @@ fun NotificationMasterSwitch(
     enabled: Boolean,
     onEnabledChange: (Boolean) -> Unit
 ) {
-    Card(
+    PrimaryCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (enabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-        )
+            .padding(bottom = 16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -244,11 +245,8 @@ fun NotificationCategoryCard(
     onEnabledChange: (Boolean) -> Unit,
     content: @Composable () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+    SecondaryCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

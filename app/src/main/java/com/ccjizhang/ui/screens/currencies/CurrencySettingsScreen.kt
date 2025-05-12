@@ -21,6 +21,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Currency
 import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.navigation.NavParametersUnified
 import com.ccjizhang.ui.navigation.createUnifiedNavParameters
@@ -54,10 +57,11 @@ fun CurrencySettingsScreen(
     var showSnackbar by remember { mutableStateOf(false) }
 
     // 页面界面
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "币种设置",
         navController = navController,
         showBackButton = true,
+        showFloatingActionButton = false,
         actions = {
             if (hasChanges) {
                 IconButton(onClick = {
@@ -67,7 +71,8 @@ fun CurrencySettingsScreen(
                 }) {
                     Icon(
                         imageVector = Icons.Default.Save,
-                        contentDescription = "保存设置"
+                        contentDescription = "保存设置",
+                        tint = Color.White
                     )
                 }
             }
@@ -102,9 +107,8 @@ fun CurrencySettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // 基准币种设置
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            PrimaryCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -152,9 +156,8 @@ fun CurrencySettingsScreen(
             }
 
             // 汇率设置列表
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            PrimaryCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -257,12 +260,8 @@ fun CurrencySettingsScreen(
             }
 
             // 说明信息
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+            SecondaryCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier

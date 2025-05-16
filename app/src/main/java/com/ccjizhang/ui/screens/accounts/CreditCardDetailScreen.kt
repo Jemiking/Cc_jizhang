@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Account
-import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.PrimaryCard
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.viewmodels.CreditCardViewModel
 import com.ccjizhang.ui.common.OperationResult
@@ -41,15 +43,15 @@ fun CreditCardDetailScreen(
     val creditCard by viewModel.selectedCard.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val operationResult by viewModel.operationResult.collectAsState()
-    
+
     // 操作结果提示
     var showSnackbar by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
-    
+
     // 删除确认对话框
     var showDeleteDialog by remember { mutableStateOf(false) }
-    
+
     // 处理操作结果
     LaunchedEffect(operationResult) {
         operationResult?.let {
@@ -58,7 +60,7 @@ fun CreditCardDetailScreen(
                     snackbarMessage = it.message ?: "操作成功"
                     isError = false
                     showSnackbar = true
-                    
+
                     // 如果是删除操作成功，返回上一页
                     if (it.message?.contains("删除") == true) {
                         navController.popBackStack()
@@ -79,22 +81,22 @@ fun CreditCardDetailScreen(
             viewModel.clearOperationResult()
         }
     }
-    
+
     // 加载信用卡数据
     LaunchedEffect(key1 = Unit) {
         viewModel.loadCreditCard(creditCardId)
     }
-    
-    RoundedTopBarScaffold(
+
+    UnifiedScaffold(
         title = creditCard?.name ?: "信用卡详情",
         navController = navController,
         showBackButton = true,
         actions = {
             IconButton(onClick = { navController.navigate(NavRoutes.creditCardEdit(creditCardId)) }) {
-                Icon(Icons.Default.Edit, contentDescription = "编辑信用卡")
+                Icon(Icons.Default.Edit, contentDescription = "编辑信用卡", tint = Color.White)
             }
             IconButton(onClick = { showDeleteDialog = true }) {
-                Icon(Icons.Default.Delete, contentDescription = "删除信用卡")
+                Icon(Icons.Default.Delete, contentDescription = "删除信用卡", tint = Color.White)
             }
         }
     ) { paddingValues ->
@@ -120,7 +122,7 @@ fun CreditCardDetailScreen(
                     onPayClick = { navController.navigate(NavRoutes.creditCardPayment(creditCardId)) }
                 )
             }
-            
+
             // Snackbar显示操作结果
             if (showSnackbar) {
                 Snackbar(
@@ -132,13 +134,13 @@ fun CreditCardDetailScreen(
                             Text("关闭")
                         }
                     },
-                    containerColor = if (isError) 
-                        MaterialTheme.colorScheme.errorContainer 
-                    else 
+                    containerColor = if (isError)
+                        MaterialTheme.colorScheme.errorContainer
+                    else
                         MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = if (isError) 
-                        MaterialTheme.colorScheme.onErrorContainer 
-                    else 
+                    contentColor = if (isError)
+                        MaterialTheme.colorScheme.onErrorContainer
+                    else
                         MaterialTheme.colorScheme.onPrimaryContainer,
                     dismissAction = { showSnackbar = false }
                 ) {
@@ -147,14 +149,14 @@ fun CreditCardDetailScreen(
             }
         }
     }
-    
+
     // 删除确认对话框
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("删除信用卡") },
-            text = { 
-                Text("确定要删除信用卡 \"${creditCard?.name}\" 吗？与此信用卡相关的所有交易记录也将被删除，此操作不可撤销。") 
+            text = {
+                Text("确定要删除信用卡 \"${creditCard?.name}\" 吗？与此信用卡相关的所有交易记录也将被删除，此操作不可撤销。")
             },
             confirmButton = {
                 TextButton(
@@ -187,7 +189,7 @@ fun CreditCardDetailContent(
 ) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val scrollState = rememberScrollState()
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -220,15 +222,15 @@ fun CreditCardDetailContent(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     Icon(
                         imageVector = Icons.Default.CreditCard,
                         contentDescription = null
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Text(
                     text = "当前余额",
                     style = MaterialTheme.typography.bodyMedium
@@ -238,9 +240,9 @@ fun CreditCardDetailContent(
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -256,7 +258,7 @@ fun CreditCardDetailContent(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = "可用额度",
@@ -269,9 +271,9 @@ fun CreditCardDetailContent(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Button(
                     onClick = onPayClick,
                     colors = ButtonDefaults.buttonColors(
@@ -289,13 +291,10 @@ fun CreditCardDetailContent(
                 }
             }
         }
-        
+
         // 账单信息卡片
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(12.dp)
+        SecondaryCard(
+            modifier = Modifier.padding(bottom = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -307,7 +306,7 @@ fun CreditCardDetailContent(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                
+
                 // 账单日信息
                 Row(
                     modifier = Modifier
@@ -325,7 +324,7 @@ fun CreditCardDetailContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 // 下一个账单日
                 Row(
                     modifier = Modifier
@@ -343,7 +342,7 @@ fun CreditCardDetailContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 if (daysUntilBilling > 0) {
                     Row(
                         modifier = Modifier
@@ -363,9 +362,9 @@ fun CreditCardDetailContent(
                         )
                     }
                 }
-                
+
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                
+
                 // 还款日信息
                 Row(
                     modifier = Modifier
@@ -383,7 +382,7 @@ fun CreditCardDetailContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 // 下一个还款日
                 Row(
                     modifier = Modifier
@@ -401,7 +400,7 @@ fun CreditCardDetailContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 if (daysUntilDue > 0) {
                     Row(
                         modifier = Modifier
@@ -417,20 +416,17 @@ fun CreditCardDetailContent(
                             text = "${daysUntilDue}天",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = if (daysUntilDue <= 7) MaterialTheme.colorScheme.error 
+                            color = if (daysUntilDue <= 7) MaterialTheme.colorScheme.error
                                   else MaterialTheme.colorScheme.primary
                         )
                     }
                 }
             }
         }
-        
+
         // 其他信息与设置卡片
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(12.dp)
+        SecondaryCard(
+            modifier = Modifier.padding(bottom = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -442,7 +438,7 @@ fun CreditCardDetailContent(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                
+
                 // 包含在总资产计算中
                 Row(
                     modifier = Modifier
@@ -461,7 +457,7 @@ fun CreditCardDetailContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 // 账户类型
                 Row(
                     modifier = Modifier
@@ -483,4 +479,4 @@ fun CreditCardDetailContent(
             }
         }
     }
-} 
+}

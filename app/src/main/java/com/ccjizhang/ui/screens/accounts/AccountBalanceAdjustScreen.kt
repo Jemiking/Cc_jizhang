@@ -17,7 +17,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.navigation.NavParametersUnified
 import com.ccjizhang.ui.navigation.createUnifiedNavParameters
@@ -73,7 +74,7 @@ fun AccountBalanceAdjustScreen(
         }
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "账户余额调整",
         navController = navController,
         showBackButton = true
@@ -81,7 +82,6 @@ fun AccountBalanceAdjustScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(16.dp)
         ) {
             if (isLoading) {
@@ -94,10 +94,7 @@ fun AccountBalanceAdjustScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // 账户选择器
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
+                    SecondaryCard {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -171,10 +168,7 @@ fun AccountBalanceAdjustScreen(
                     }
 
                     // 调整模式选择
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
+                    SecondaryCard {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()

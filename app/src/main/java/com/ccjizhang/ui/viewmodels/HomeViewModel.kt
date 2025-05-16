@@ -89,14 +89,29 @@ class HomeViewModel @Inject constructor(
      */
     fun loadHomeData() {
         viewModelScope.launch {
+            println("HOME-DEBUG: 开始加载主页数据")
             _uiState.value = _uiState.value.copy(isLoading = true)
 
-            // 并行加载各类数据
-            launch { loadAccountBalance() }
-            launch { loadMonthlyStats() }
-            launch { loadRecentTransactions() }
-            launch { loadUpcomingBills() }
-            launch { loadBudgetAlerts() }
+            try {
+                // 并行加载各类数据
+                val accountJob = launch { loadAccountBalance() }
+                val statsJob = launch { loadMonthlyStats() }
+                val transactionsJob = launch { loadRecentTransactions() }
+                val billsJob = launch { loadUpcomingBills() }
+                val budgetJob = launch { loadBudgetAlerts() }
+
+                // 等待所有任务完成
+                accountJob.join()
+                statsJob.join()
+                transactionsJob.join()
+                billsJob.join()
+                budgetJob.join()
+
+                println("HOME-DEBUG: 主页数据加载完成")
+            } catch (e: Exception) {
+                println("HOME-DEBUG: 主页数据加载失败: ${e.message}")
+                e.printStackTrace()
+            }
         }
     }
 
@@ -105,13 +120,29 @@ class HomeViewModel @Inject constructor(
      */
     private suspend fun loadAccountBalance() {
         try {
+            println("HOME-DEBUG: 开始加载账户总余额")
             val accounts = accountRepository.getAllAccounts().first()
+            println("HOME-DEBUG: 加载到 ${accounts.size} 个账户")
+
+            if (accounts.isEmpty()) {
+                println("HOME-DEBUG: 警告 - 账户列表为空!")
+            } else {
+                accounts.forEachIndexed { index, account ->
+                    println("HOME-DEBUG: 账户[$index]: id=${account.id}, name=${account.name}, balance=${account.balance}, includeInTotal=${account.includeInTotal}")
+                }
+            }
+
             val totalBalance = accounts.sumOf { it.balance }
+            println("HOME-DEBUG: 计算的总余额: $totalBalance")
+
             _uiState.value = _uiState.value.copy(
                 totalBalance = totalBalance,
                 isLoading = false
             )
+            println("HOME-DEBUG: 账户总余额加载完成")
         } catch (e: Exception) {
+            println("HOME-DEBUG: 加载账户总余额失败: ${e.message}")
+            e.printStackTrace()
             // 错误处理
         }
     }

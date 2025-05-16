@@ -10,11 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.navigation.NavRoutes
 import com.ccjizhang.ui.navigation.NavParametersUnified
 import com.ccjizhang.ui.navigation.createUnifiedNavParameters
@@ -58,7 +60,7 @@ fun AccountTransferScreen(
         viewModel.loadAccounts()
     }
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "账户转账",
         navController = navController,
         showBackButton = true
@@ -75,14 +77,10 @@ fun AccountTransferScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
+                SecondaryCard {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

@@ -10,7 +10,7 @@ import com.ccjizhang.ui.screens.settings.SettingsScreen
 import com.ccjizhang.ui.screens.settings.DataBackupScreen
 import com.ccjizhang.ui.screens.settings.CategoryManagementScreen
 import com.ccjizhang.ui.screens.settings.TagManagementScreen
-import com.ccjizhang.ui.screens.accounts.AccountManagementScreen
+import com.ccjizhang.ui.screens.accounts.AccountManagementScreenEnhanced
 import com.ccjizhang.ui.screens.accounts.AccountDetailScreen
 import com.ccjizhang.ui.screens.accounts.AccountEditScreen
 import com.ccjizhang.ui.screens.transactions.TransactionDetailScreen
@@ -108,7 +108,7 @@ fun WrappedStatsScreenUnified(navController: NavHostController) {
 fun WrappedAccountsScreenUnified(navController: NavHostController) {
     NavWrapper(navController) { nav ->
         val navParams = createUnifiedNavParameters(nav)
-        AccountManagementScreen(navController = nav)
+        AccountManagementScreenEnhanced(navController = nav)
     }
 }
 
@@ -178,11 +178,13 @@ fun WrappedTagManagementScreenUnified(navController: NavHostController) {
 
 /**
  * 账户管理页面的包装组件
+ * @deprecated 使用WrappedAccountsScreenUnified或WrappedAccountManagementScreenEnhancedUnified代替
  */
+@Deprecated("使用WrappedAccountsScreenUnified或WrappedAccountManagementScreenEnhancedUnified代替")
 @Composable
 fun WrappedAccountManagementScreenUnified(navController: NavHostController) {
     NavWrapper(navController) { nav ->
-        AccountManagementScreen(navController = nav)
+        AccountManagementScreenEnhanced(navController = nav)
     }
 }
 

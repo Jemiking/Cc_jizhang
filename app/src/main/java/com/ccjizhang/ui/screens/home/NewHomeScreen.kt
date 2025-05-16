@@ -116,7 +116,7 @@ fun NewHomeScreen(
     onNavigateToTransactions: () -> Unit = { navController.navigate(NavRoutes.Transactions) },
     onNavigateToAccounts: () -> Unit = { navController.navigate(NavRoutes.Accounts) },
     onNavigateToBudgets: () -> Unit = { navController.navigate(NavRoutes.AllBudgets) },
-    onNavigateToAnalysis: () -> Unit = { navController.navigate(NavRoutes.Analysis) },
+    onNavigateToAnalysis: () -> Unit = { navController.navigate(NavRoutes.Statistics) },
     onNavigateToSettings: () -> Unit = { navController.navigate(NavRoutes.Settings) },
     onNavigateToAddTransaction: () -> Unit = { navController.navigate(NavRoutes.TransactionAdd) },
     onNavigateToSavingGoals: () -> Unit = { navController.navigate(NavRoutes.SavingGoals) },

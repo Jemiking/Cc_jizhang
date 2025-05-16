@@ -17,7 +17,8 @@ import androidx.navigation.NavHostController
 import com.ccjizhang.data.model.Account
 import com.ccjizhang.data.model.AccountType
 import com.ccjizhang.ui.components.AccountDropdownMenu
-import com.ccjizhang.ui.components.RoundedTopBarScaffold
+import com.ccjizhang.ui.components.UnifiedScaffold
+import com.ccjizhang.ui.components.SecondaryCard
 import com.ccjizhang.ui.viewmodels.AccountViewModel
 import com.ccjizhang.ui.viewmodels.CreditCardViewModel
 import com.ccjizhang.ui.common.OperationResult
@@ -42,26 +43,26 @@ fun CreditCardPaymentScreen(
     val selectedCard by viewModel.selectedCard.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val operationResult by viewModel.operationResult.collectAsState()
-    
+
     // 加载所有可用账户（排除当前信用卡）
     val accounts by accountViewModel.accounts.collectAsState()
     val availableAccounts = remember(accounts, creditCardId) {
         accounts.filter { it.id != creditCardId && it.type != AccountType.CREDIT_CARD }
     }
-    
+
     // 表单状态
     var selectedSourceAccount by remember { mutableStateOf<Account?>(null) }
     var amount by remember { mutableStateOf("") }
     var memo by remember { mutableStateOf("") }
-    
+
     // 下拉菜单状态
     var expanded by remember { mutableStateOf(false) }
-    
+
     // 操作结果提示
     var showSnackbar by remember { mutableStateOf(false) }
     var snackbarMessage by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
-    
+
     // 处理操作结果 (确保使用 SharedOperationResult)
     LaunchedEffect(operationResult) {
         operationResult?.let {
@@ -89,23 +90,23 @@ fun CreditCardPaymentScreen(
             viewModel.clearOperationResult()
         }
     }
-    
+
     // 加载信用卡数据
     LaunchedEffect(creditCardId) {
         viewModel.loadCreditCard(creditCardId)
         accountViewModel.loadAccounts()
     }
-    
+
     // 当可用账户列表更新时，如果尚未选择源账户且有可用账户，则默认选择第一个
     LaunchedEffect(availableAccounts) {
         if (selectedSourceAccount == null && availableAccounts.isNotEmpty()) {
             selectedSourceAccount = availableAccounts.first()
         }
     }
-    
+
     val scrollState = rememberScrollState()
 
-    RoundedTopBarScaffold(
+    UnifiedScaffold(
         title = "信用卡还款",
         navController = navController,
         showBackButton = true
@@ -128,10 +129,8 @@ fun CreditCardPaymentScreen(
                             .verticalScroll(scrollState)
                     ) {
                         // 信用卡信息卡片
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 16.dp)
+                        SecondaryCard(
+                            modifier = Modifier.padding(bottom = 8.dp)
                         ) {
                             Column(
                                 modifier = Modifier
@@ -143,9 +142,9 @@ fun CreditCardPaymentScreen(
                                     text = "还款信息",
                                     style = MaterialTheme.typography.titleMedium
                                 )
-                                
+
                                 Divider()
-                                
+
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -153,7 +152,7 @@ fun CreditCardPaymentScreen(
                                     Text("信用卡")
                                     Text(creditCard.name)
                                 }
-                                
+
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -165,7 +164,7 @@ fun CreditCardPaymentScreen(
                                         color = if (creditCard.balance < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
-                                
+
                                 if (creditCard.balance < 0) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -179,11 +178,11 @@ fun CreditCardPaymentScreen(
                                         )
                                     }
                                 }
-                                
+
                                 val daysUntilDue = remember(creditCard) {
                                     viewModel.getDaysUntilNextDueDate(creditCard)
                                 }
-                                
+
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -200,12 +199,10 @@ fun CreditCardPaymentScreen(
                                 }
                             }
                         }
-                        
+
                         // 还款表单卡片
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 16.dp)
+                        SecondaryCard(
+                            modifier = Modifier.padding(bottom = 8.dp)
                         ) {
                             Column(
                                 modifier = Modifier
@@ -217,10 +214,10 @@ fun CreditCardPaymentScreen(
                                     text = "还款详情",
                                     style = MaterialTheme.typography.titleMedium
                                 )
-                                
+
                                 // 源账户选择
                                 Text("从哪个账户还款")
-                                
+
                                 Box {
                                     OutlinedTextField(
                                         value = selectedSourceAccount?.name ?: "",
@@ -236,14 +233,14 @@ fun CreditCardPaymentScreen(
                                         },
                                         modifier = Modifier.fillMaxWidth()
                                     )
-                                    
+
                                     // 点击区域
                                     Box(
                                         modifier = Modifier
                                             .matchParentSize()
                                             .padding(0.dp)
                                     ) { /* 空盒子，只用于捕获点击 */ }
-                                    
+
                                     // 账户下拉菜单
                                     AccountDropdownMenu(
                                         expanded = expanded,
@@ -255,7 +252,7 @@ fun CreditCardPaymentScreen(
                                         onDismissRequest = { expanded = false }
                                     )
                                 }
-                                
+
                                 // 还款金额
                                 OutlinedTextField(
                                     value = amount,
@@ -271,7 +268,7 @@ fun CreditCardPaymentScreen(
                                         }
                                     }
                                 )
-                                
+
                                 // 快速金额选择按钮
                                 if (creditCard.balance < 0) {
                                     Row(
@@ -284,7 +281,7 @@ fun CreditCardPaymentScreen(
                                         ) {
                                             Text("全额还款")
                                         }
-                                        
+
                                         OutlinedButton(
                                             onClick = { amount = ((-creditCard.balance) / 2).toString() },
                                             modifier = Modifier.weight(1f)
@@ -293,7 +290,7 @@ fun CreditCardPaymentScreen(
                                         }
                                     }
                                 }
-                                
+
                                 // 备注
                                 OutlinedTextField(
                                     value = memo,
@@ -305,7 +302,7 @@ fun CreditCardPaymentScreen(
                                 )
                             }
                         }
-                        
+
                         // 按钮区域
                         Row(
                             modifier = Modifier
@@ -319,7 +316,7 @@ fun CreditCardPaymentScreen(
                             ) {
                                 Text("取消")
                             }
-                            
+
                             Button(
                                 onClick = {
                                     val amountValue = amount.toDoubleOrNull()
@@ -336,9 +333,9 @@ fun CreditCardPaymentScreen(
                                         isError = true
                                     }
                                 },
-                                enabled = selectedSourceAccount != null && 
-                                         amount.isNotBlank() && 
-                                         amount.toDoubleOrNull() != null && 
+                                enabled = selectedSourceAccount != null &&
+                                         amount.isNotBlank() &&
+                                         amount.toDoubleOrNull() != null &&
                                          amount.toDoubleOrNull()!! > 0,
                                 modifier = Modifier.weight(1f)
                             ) {
@@ -365,7 +362,7 @@ fun CreditCardPaymentScreen(
                         }
                     }
                 }
-                
+
                 // Snackbar显示操作结果
                 if (showSnackbar) {
                     Snackbar(
@@ -377,13 +374,13 @@ fun CreditCardPaymentScreen(
                                 Text("关闭")
                             }
                         },
-                        containerColor = if (isError) 
-                            MaterialTheme.colorScheme.errorContainer 
-                        else 
+                        containerColor = if (isError)
+                            MaterialTheme.colorScheme.errorContainer
+                        else
                             MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = if (isError) 
-                            MaterialTheme.colorScheme.onErrorContainer 
-                        else 
+                        contentColor = if (isError)
+                            MaterialTheme.colorScheme.onErrorContainer
+                        else
                             MaterialTheme.colorScheme.onPrimaryContainer,
                         dismissAction = { showSnackbar = false }
                     ) {
@@ -393,4 +390,4 @@ fun CreditCardPaymentScreen(
             }
         }
     }
-} 
+}

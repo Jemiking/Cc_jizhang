@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -46,6 +47,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,8 +93,22 @@ fun AccountManagementScreenEnhanced(
     // 分类展开状态
     val expandedCategories = remember { mutableStateOf(mutableSetOf<Long?>()) }
 
+    // 使用rememberCoroutineScope而不是LaunchedEffect，以避免生命周期问题
+    val coroutineScope = rememberCoroutineScope()
+
+    // 在组件首次组合时加载数据
     LaunchedEffect(Unit) {
-        viewModel.loadAccounts()
+        println("DEBUG: AccountManagementScreen - LaunchedEffect 触发")
+        coroutineScope.launch {
+            try {
+                println("DEBUG: AccountManagementScreen - 开始加载账户数据")
+                viewModel.loadAccounts()
+                println("DEBUG: AccountManagementScreen - 账户数据加载完成")
+            } catch (e: Exception) {
+                println("DEBUG: AccountManagementScreen - 加载账户数据失败: ${e.message}")
+                e.printStackTrace()
+            }
+        }
     }
 
     UnifiedScaffold(
@@ -155,6 +171,7 @@ fun AccountManagementScreenEnhanced(
         ) {
             // 总资产卡片
             item {
+                println("DEBUG: AccountManagementScreen - 渲染总资产卡片，totalBalance=$totalBalance")
                 PrimaryCard(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -176,6 +193,13 @@ fun AccountManagementScreenEnhanced(
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(top = 8.dp)
+                        )
+
+                        // 添加调试信息
+                        Text(
+                            text = "账户数量: ${accounts.size}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -225,9 +249,56 @@ fun AccountManagementScreenEnhanced(
             }
 
             // 按分类显示账户（当排序方式为自定义时）
-            if (sortType == AccountSortType.CUSTOM) {
+            println("DEBUG: AccountManagementScreen - 开始渲染账户列表，排序方式: $sortType, 账户总数: ${accounts.size}")
+
+            if (accounts.isEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "没有找到账户数据",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                        Text(
+                            text = "请检查数据库连接或添加新账户",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+
+                        // 添加手动刷新按钮
+                        Button(
+                            onClick = {
+                                println("DEBUG: AccountManagementScreen - 手动刷新按钮点击")
+                                coroutineScope.launch {
+                                    try {
+                                        println("DEBUG: AccountManagementScreen - 开始手动刷新数据")
+                                        viewModel.loadAccounts()
+                                        println("DEBUG: AccountManagementScreen - 手动刷新数据完成")
+                                    } catch (e: Exception) {
+                                        println("DEBUG: AccountManagementScreen - 手动刷新数据失败: ${e.message}")
+                                        e.printStackTrace()
+                                    }
+                                }
+                            },
+                            modifier = Modifier.padding(top = 16.dp)
+                        ) {
+                            Text("刷新数据")
+                        }
+                    }
+                }
+            } else if (sortType == AccountSortType.CUSTOM) {
+                println("DEBUG: AccountManagementScreen - 使用分类视图渲染账户")
                 // 未分类账户
                 val uncategorizedAccounts = accountsGroupedByCategory[null] ?: emptyList()
+                println("DEBUG: AccountManagementScreen - 未分类账户数量: ${uncategorizedAccounts.size}")
+
                 if (uncategorizedAccounts.isNotEmpty()) {
                     item {
                         CategoryHeader(
@@ -256,8 +327,11 @@ fun AccountManagementScreenEnhanced(
                 }
 
                 // 分类账户
+                println("DEBUG: AccountManagementScreen - 分类数量: ${accountCategories.size}")
                 accountCategories.forEach { category ->
                     val categoryAccounts = accountsGroupedByCategory[category.id] ?: emptyList()
+                    println("DEBUG: AccountManagementScreen - 分类[${category.name}]账户数量: ${categoryAccounts.size}")
+
                     if (categoryAccounts.isNotEmpty()) {
                         item {
                             CategoryHeader(
@@ -287,7 +361,9 @@ fun AccountManagementScreenEnhanced(
                 }
             } else {
                 // 按其他方式排序显示所有账户
+                println("DEBUG: AccountManagementScreen - 使用列表视图渲染账户，数量: ${accounts.size}")
                 items(accounts) { account ->
+                    println("DEBUG: AccountManagementScreen - 渲染账户: ${account.name}, 余额: ${account.balance}")
                     AccountItem(
                         account = account,
                         viewModel = viewModel,

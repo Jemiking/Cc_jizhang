@@ -19,7 +19,7 @@ fun WrappedNewHomeScreenUnified(navController: NavHostController) {
             onNavigateToTransactions = navParams.onNavigateToTransactions,
             onNavigateToAccounts = navParams.onNavigateToAccounts,
             onNavigateToBudgets = { nav.navigate(NavRoutes.AllBudgets) },
-            onNavigateToAnalysis = { nav.navigate(NavRoutes.Analysis) },
+            onNavigateToAnalysis = { nav.navigate(NavRoutes.Statistics) },
             onNavigateToSettings = navParams.onNavigateToSettings,
             onNavigateToAddTransaction = { nav.navigate(NavRoutes.TransactionAdd) },
             onNavigateToSavingGoals = { nav.navigate(NavRoutes.SavingGoals) },

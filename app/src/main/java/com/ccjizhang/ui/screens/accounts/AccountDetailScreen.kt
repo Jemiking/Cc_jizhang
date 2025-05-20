@@ -57,29 +57,34 @@ fun AccountDetailScreen(
 
     // 加载账户数据
     LaunchedEffect(accountId) {
-        // 简化实现，假设这些方法已经存在
-        // accountViewModel.loadAccount(accountId)
-        // transactionViewModel.loadRecentTransactionsByAccount(accountId, 5)
+        try {
+            // 直接使用同步方法加载账户数据
+            accountViewModel.loadAccountSync(accountId)
+            // transactionViewModel.loadRecentTransactionsByAccount(accountId, 5)
+        } catch (e: Exception) {
+            println("DEBUG: 加载账户数据失败: ${e.message}")
+        }
     }
 
     // 处理删除结果
-    LaunchedEffect(Unit) {
-        // 简化实现，假设这些方法已经存在
-        // accountViewModel.operationResult?.let { result ->
-        //     when (result) {
-        //         is com.ccjizhang.ui.common.OperationResult.Success -> {
-        //             if (result.message?.contains("删除") == true) {
-        //                 navController.popBackStack()
-        //             }
-        //         }
-        //         is com.ccjizhang.ui.common.OperationResult.Error -> {
-        //             showSnackbar = true
-        //             snackbarMessage = result.message
-        //             isError = true
-        //         }
-        //         else -> {}
-        //     }
-        // }
+    LaunchedEffect(accountViewModel.operationResult.collectAsState().value) {
+        accountViewModel.operationResult.value?.let { result ->
+            when (result) {
+                is com.ccjizhang.ui.common.OperationResult.Success -> {
+                    if (result.message?.contains("删除") == true) {
+                        navController.popBackStack()
+                    }
+                    accountViewModel.clearOperationResult()
+                }
+                is com.ccjizhang.ui.common.OperationResult.Error -> {
+                    showSnackbar = true
+                    snackbarMessage = result.message
+                    isError = true
+                    accountViewModel.clearOperationResult()
+                }
+                else -> {}
+            }
+        }
     }
 
     UnifiedScaffold(
@@ -134,17 +139,20 @@ fun AccountDetailScreen(
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = false },
                     title = { Text("确认删除") },
-                    text = { Text("确定要删除账户 ${account?.name} 吗？此操作无法撤销，账户相关的交易记录将保留。") },
+                    text = { Text("确定要删除账户 ${account?.name} 吗？此操作无法撤销，账户相关的所有交易记录也将被删除。") },
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                // 简化实现，假设这些方法已经存在
-                                // accountViewModel.deleteAccount(accountId)
-                                navController.popBackStack()
+                                accountViewModel.deleteAccount(accountId)
                                 showDeleteDialog = false
+                                // 直接导航到主页，避免账户管理页面的自动导航逻辑
+                                navController.navigate(NavRoutes.Home) {
+                                    // 清除导航栈，防止返回到已删除的账户详情页
+                                    popUpTo(NavRoutes.Home) { inclusive = true }
+                                }
                             }
                         ) {
-                            Text("删除")
+                            Text("删除", color = MaterialTheme.colorScheme.error)
                         }
                     },
                     dismissButton = {

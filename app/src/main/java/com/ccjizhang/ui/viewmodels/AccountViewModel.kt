@@ -299,6 +299,27 @@ class AccountViewModel @Inject constructor(
     }
 
     /**
+     * 同步加载账户数据
+     * 这个方法直接使用同步方式加载账户数据，避免使用collectLatest导致的无限收集问题
+     */
+    fun loadAccountSync(id: Long) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                println("DEBUG: 开始同步加载账户数据，ID: $id")
+                val account = accountRepository.getAccountByIdSync(id)
+                println("DEBUG: 同步加载账户结果: $account")
+                _selectedAccount.value = account
+            } catch (e: Exception) {
+                println("DEBUG: 同步加载账户失败: ${e.message}")
+                _operationResult.value = OperationResult.Error("获取账户详情失败: ${e.message}")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
      * 添加新账户
      */
     fun addAccount(account: Account) {

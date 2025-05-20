@@ -91,8 +91,10 @@ fun AccountManagementScreenEnhanced(
     // 排序菜单状态
     var showSortMenu by remember { mutableStateOf(false) }
 
-    // 分类展开状态
-    val expandedCategories = remember { mutableStateOf(mutableSetOf<Long?>()) }
+    // 分类展开状态 - 默认展开未分类账户
+    val expandedCategories = remember {
+        mutableStateOf(mutableSetOf<Long?>().apply { add(null) })
+    }
 
     // 使用rememberCoroutineScope而不是LaunchedEffect，以避免生命周期问题
     val coroutineScope = rememberCoroutineScope()
@@ -400,7 +402,13 @@ private fun CategoryHeader(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onToggleExpand)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp) // 增加垂直padding
+            .background(
+                if (isExpanded)
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                else
+                    Color.Transparent
+            ), // 添加背景色以提供视觉反馈
         verticalAlignment = Alignment.CenterVertically
     ) {
         // 分类图标

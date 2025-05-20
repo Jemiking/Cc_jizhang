@@ -17,6 +17,7 @@ import com.ccjizhang.data.model.Currency
 import com.ccjizhang.data.repository.AccountCategoryRepository
 import com.ccjizhang.data.repository.AccountRepository
 import com.ccjizhang.data.service.CurrencyService
+import com.ccjizhang.data.service.TotalBalanceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,7 +43,8 @@ import com.ccjizhang.ui.common.OperationResult
 class AccountViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val accountCategoryRepository: AccountCategoryRepository,
-    private val currencyService: CurrencyService
+    private val currencyService: CurrencyService,
+    private val totalBalanceService: TotalBalanceService
 ) : ViewModel() {
 
     // 所有账户列表
@@ -157,8 +159,10 @@ class AccountViewModel @Inject constructor(
                         if (allAccounts.isNotEmpty()) {
                             println("DEBUG: 使用直接加载的账户列表")
                             _accounts.value = allAccounts
-                            val calculatedBalance = calculateTotalBalanceInBaseCurrency(allAccounts)
-                            println("DEBUG: 计算的总余额: $calculatedBalance")
+
+                            // 使用TotalBalanceService计算总资产
+                            val calculatedBalance = totalBalanceService.calculateTotalBalance(baseCurrency.value)
+                            println("DEBUG: TotalBalanceService计算的总余额: $calculatedBalance")
                             _totalBalance.value = calculatedBalance
                         }
                     } else {
@@ -167,8 +171,10 @@ class AccountViewModel @Inject constructor(
                         }
 
                         _accounts.value = accountList
-                        val calculatedBalance = calculateTotalBalanceInBaseCurrency(accountList)
-                        println("DEBUG: 计算的总余额: $calculatedBalance")
+
+                        // 使用TotalBalanceService计算总资产
+                        val calculatedBalance = totalBalanceService.calculateTotalBalance(baseCurrency.value)
+                        println("DEBUG: TotalBalanceService计算的总余额: $calculatedBalance")
                         _totalBalance.value = calculatedBalance
                     }
                 } catch (e: Exception) {
@@ -177,7 +183,10 @@ class AccountViewModel @Inject constructor(
                     val allAccounts = accountRepository.getAllAccountsSync()
                     println("DEBUG: 同步加载到 ${allAccounts.size} 个账户")
                     _accounts.value = allAccounts
-                    val calculatedBalance = calculateTotalBalanceInBaseCurrency(allAccounts)
+
+                    // 使用TotalBalanceService计算总资产
+                    val calculatedBalance = totalBalanceService.calculateTotalBalance(baseCurrency.value)
+                    println("DEBUG: TotalBalanceService计算的总余额: $calculatedBalance")
                     _totalBalance.value = calculatedBalance
                 }
 

@@ -1,5 +1,6 @@
 package com.ccjizhang.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ccjizhang.data.model.Account
@@ -9,6 +10,7 @@ import com.ccjizhang.data.model.Transaction
 import com.ccjizhang.data.repository.AccountRepository
 import com.ccjizhang.data.repository.BudgetRepository
 import com.ccjizhang.data.repository.TransactionRepository
+import com.ccjizhang.data.service.TotalBalanceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,7 +74,8 @@ data class BudgetAlert(
 class HomeViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val transactionRepository: TransactionRepository,
-    private val budgetRepository: BudgetRepository
+    private val budgetRepository: BudgetRepository,
+    private val totalBalanceService: TotalBalanceService
 ) : ViewModel() {
 
     // UI状态
@@ -117,32 +120,23 @@ class HomeViewModel @Inject constructor(
 
     /**
      * 加载账户总余额
+     * 使用TotalBalanceService计算总资产，确保与账户管理页面使用相同的计算逻辑
      */
     private suspend fun loadAccountBalance() {
         try {
-            println("HOME-DEBUG: 开始加载账户总余额")
-            val accounts = accountRepository.getAllAccounts().first()
-            println("HOME-DEBUG: 加载到 ${accounts.size} 个账户")
+            Log.d("HomeViewModel", "开始加载账户总余额")
 
-            if (accounts.isEmpty()) {
-                println("HOME-DEBUG: 警告 - 账户列表为空!")
-            } else {
-                accounts.forEachIndexed { index, account ->
-                    println("HOME-DEBUG: 账户[$index]: id=${account.id}, name=${account.name}, balance=${account.balance}, includeInTotal=${account.includeInTotal}")
-                }
-            }
-
-            val totalBalance = accounts.sumOf { it.balance }
-            println("HOME-DEBUG: 计算的总余额: $totalBalance")
+            // 使用TotalBalanceService计算总资产
+            val totalBalance = totalBalanceService.calculateTotalBalance()
+            Log.d("HomeViewModel", "TotalBalanceService计算的总余额: $totalBalance")
 
             _uiState.value = _uiState.value.copy(
                 totalBalance = totalBalance,
                 isLoading = false
             )
-            println("HOME-DEBUG: 账户总余额加载完成")
+            Log.d("HomeViewModel", "账户总余额加载完成")
         } catch (e: Exception) {
-            println("HOME-DEBUG: 加载账户总余额失败: ${e.message}")
-            e.printStackTrace()
+            Log.e("HomeViewModel", "加载账户总余额失败: ${e.message}", e)
             // 错误处理
         }
     }

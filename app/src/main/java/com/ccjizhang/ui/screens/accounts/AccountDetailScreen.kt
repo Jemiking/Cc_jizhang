@@ -145,10 +145,10 @@ fun AccountDetailScreen(
                             onClick = {
                                 accountViewModel.deleteAccount(accountId)
                                 showDeleteDialog = false
-                                // 直接导航到主页，避免账户管理页面的自动导航逻辑
-                                navController.navigate(NavRoutes.Home) {
+                                // 直接导航到账户管理页面，避免自动导航逻辑
+                                navController.navigate(NavRoutes.Accounts) {
                                     // 清除导航栈，防止返回到已删除的账户详情页
-                                    popUpTo(NavRoutes.Home) { inclusive = true }
+                                    popUpTo(NavRoutes.Accounts) { inclusive = true }
                                 }
                             }
                         ) {

@@ -56,7 +56,6 @@ fun AccountEditScreen(
     var includeInTotal by remember { mutableStateOf(true) }
 
     // 操作状态
-    val operationResult by viewModel.operationResult.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 

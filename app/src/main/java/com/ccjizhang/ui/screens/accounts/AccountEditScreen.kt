@@ -83,46 +83,63 @@ fun AccountEditScreen(
     }
 
     // 操作结果处理
-    LaunchedEffect(key1 = Unit) {
-        viewModel.operationResult.collectLatest { result ->
+    val operationResult by viewModel.operationResult.collectAsState()
+
+    // 使用LaunchedEffect监听operationResult的变化
+    LaunchedEffect(operationResult) {
+        println("DEBUG: AccountEditScreen - operationResult变化: $operationResult")
+        val result = operationResult
+        if (result != null) {
             when (result) {
                 is OperationResult.Loading -> {
                     // Optionally show loading indicator
+                    println("DEBUG: AccountEditScreen - 操作加载中")
                 }
                 is OperationResult.Success -> {
+                    println("DEBUG: AccountEditScreen - 操作成功: ${result.message}")
                     scope.launch {
-                        println("DEBUG: AccountEditScreen - 操作成功: ${result.message}")
                         snackbarHostState.showSnackbar(message = result.message ?: "操作成功")
-                        // 操作成功后导航回账户管理页面
-                        if (result.message?.contains("添加账户成功") == true ||
-                            result.message?.contains("更新账户成功") == true) {
-                            println("DEBUG: AccountEditScreen - 保存成功，返回账户管理页面")
-                            try {
-                                navController.popBackStack()
-                                println("DEBUG: AccountEditScreen - popBackStack 成功")
-                            } catch (e: Exception) {
-                                println("DEBUG: AccountEditScreen - popBackStack 失败: ${e.message}")
-                                e.printStackTrace()
-                                // 尝试直接导航到账户管理页面
-                                try {
-                                    navController.navigate(NavRoutes.Accounts) {
-                                        popUpTo(NavRoutes.Accounts) { inclusive = true }
-                                    }
-                                    println("DEBUG: AccountEditScreen - 直接导航到账户管理页面成功")
-                                } catch (e2: Exception) {
-                                    println("DEBUG: AccountEditScreen - 直接导航到账户管理页面失败: ${e2.message}")
-                                    e2.printStackTrace()
-                                }
-                            }
-                        } else {
-                            println("DEBUG: AccountEditScreen - 不满足跳转条件，消息内容: ${result.message}")
-                        }
                     }
+
+                    // 操作成功后导航回账户管理页面
+                    if (result.message?.contains("添加账户成功") == true ||
+                        result.message?.contains("更新账户成功") == true) {
+                        println("DEBUG: AccountEditScreen - 保存成功，返回账户管理页面")
+                        try {
+                            navController.popBackStack()
+                            println("DEBUG: AccountEditScreen - popBackStack 成功")
+                        } catch (e: Exception) {
+                            println("DEBUG: AccountEditScreen - popBackStack 失败: ${e.message}")
+                            e.printStackTrace()
+                            // 尝试直接导航到账户管理页面
+                            try {
+                                navController.navigate(NavRoutes.Accounts) {
+                                    popUpTo(NavRoutes.Accounts) { inclusive = true }
+                                }
+                                println("DEBUG: AccountEditScreen - 直接导航到账户管理页面成功")
+                            } catch (e2: Exception) {
+                                println("DEBUG: AccountEditScreen - 直接导航到账户管理页面失败: ${e2.message}")
+                                e2.printStackTrace()
+                            }
+                        }
+                    } else {
+                        println("DEBUG: AccountEditScreen - 不满足跳转条件，消息内容: ${result.message}")
+                    }
+
+                    // 清除操作结果，避免重复处理
+                    viewModel.clearOperationResult()
                 }
                 is OperationResult.Error -> {
-                    scope.launch { snackbarHostState.showSnackbar(message = "操作失败: ${result.message}", duration = SnackbarDuration.Long) }
+                    println("DEBUG: AccountEditScreen - 操作失败: ${result.message}")
+                    scope.launch {
+                        snackbarHostState.showSnackbar(message = "操作失败: ${result.message}", duration = SnackbarDuration.Long)
+                    }
+                    // 清除操作结果，避免重复处理
+                    viewModel.clearOperationResult()
                 }
-                else -> { }
+                else -> {
+                    println("DEBUG: AccountEditScreen - 未知操作结果类型")
+                }
             }
         }
     }
@@ -171,6 +188,20 @@ fun AccountEditScreen(
                     } else {
                         println("DEBUG: AccountEditScreen - 调用 addAccount")
                         viewModel.addAccount(it)
+
+                        // 添加延迟导航逻辑，确保数据保存完成后再导航
+                        scope.launch {
+                            // 延迟1秒，确保数据保存完成
+                            kotlinx.coroutines.delay(1000)
+                            println("DEBUG: AccountEditScreen - 延迟导航执行")
+                            try {
+                                navController.popBackStack()
+                                println("DEBUG: AccountEditScreen - 延迟导航成功")
+                            } catch (e: Exception) {
+                                println("DEBUG: AccountEditScreen - 延迟导航失败: ${e.message}")
+                                e.printStackTrace()
+                            }
+                        }
                     }
                     println("DEBUG: AccountEditScreen - 保存操作完成")
                 }

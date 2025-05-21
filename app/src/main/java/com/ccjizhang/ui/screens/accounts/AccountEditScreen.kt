@@ -90,7 +90,15 @@ fun AccountEditScreen(
                     // Optionally show loading indicator
                 }
                 is OperationResult.Success -> {
-                    scope.launch { snackbarHostState.showSnackbar(message = result.message ?: "操作成功") }
+                    scope.launch {
+                        snackbarHostState.showSnackbar(message = result.message ?: "操作成功")
+                        // 操作成功后导航回账户管理页面
+                        if (result.message?.contains("添加账户成功") == true ||
+                            result.message?.contains("更新账户成功") == true) {
+                            println("DEBUG: AccountEditScreen - 保存成功，返回账户管理页面")
+                            navController.popBackStack()
+                        }
+                    }
                 }
                 is OperationResult.Error -> {
                     scope.launch { snackbarHostState.showSnackbar(message = "操作失败: ${result.message}", duration = SnackbarDuration.Long) }

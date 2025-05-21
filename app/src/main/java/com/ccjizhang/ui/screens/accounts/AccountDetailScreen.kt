@@ -66,13 +66,18 @@ fun AccountDetailScreen(
         }
     }
 
-    // 处理删除结果
+    // 处理操作结果
     LaunchedEffect(accountViewModel.operationResult.collectAsState().value) {
         accountViewModel.operationResult.value?.let { result ->
             when (result) {
                 is com.ccjizhang.ui.common.OperationResult.Success -> {
+                    // 删除操作的导航逻辑已经在确认对话框中处理，这里不再处理
                     if (result.message?.contains("删除") == true) {
-                        navController.popBackStack()
+                        println("DEBUG: 删除账户成功，导航逻辑已在确认对话框中处理")
+                        // 不执行任何导航操作
+                    } else {
+                        // 处理其他成功操作
+                        println("DEBUG: 操作成功: ${result.message}")
                     }
                     accountViewModel.clearOperationResult()
                 }

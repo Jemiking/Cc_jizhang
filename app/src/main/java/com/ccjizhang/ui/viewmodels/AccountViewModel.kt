@@ -326,9 +326,14 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                println("DEBUG: AccountViewModel - 开始添加账户: ${account.name}")
                 accountRepository.addAccount(account)
+                println("DEBUG: AccountViewModel - 添加账户成功: ${account.name}")
                 _operationResult.value = OperationResult.Success("添加账户成功")
+                println("DEBUG: AccountViewModel - 设置操作结果: 添加账户成功")
             } catch (e: Exception) {
+                println("DEBUG: AccountViewModel - 添加账户失败: ${e.message}")
+                e.printStackTrace()
                 _operationResult.value = OperationResult.Error("添加账户失败: ${e.message}")
             } finally {
                 _isLoading.value = false

@@ -91,12 +91,31 @@ fun AccountEditScreen(
                 }
                 is OperationResult.Success -> {
                     scope.launch {
+                        println("DEBUG: AccountEditScreen - 操作成功: ${result.message}")
                         snackbarHostState.showSnackbar(message = result.message ?: "操作成功")
                         // 操作成功后导航回账户管理页面
                         if (result.message?.contains("添加账户成功") == true ||
                             result.message?.contains("更新账户成功") == true) {
                             println("DEBUG: AccountEditScreen - 保存成功，返回账户管理页面")
-                            navController.popBackStack()
+                            try {
+                                navController.popBackStack()
+                                println("DEBUG: AccountEditScreen - popBackStack 成功")
+                            } catch (e: Exception) {
+                                println("DEBUG: AccountEditScreen - popBackStack 失败: ${e.message}")
+                                e.printStackTrace()
+                                // 尝试直接导航到账户管理页面
+                                try {
+                                    navController.navigate(NavRoutes.Accounts) {
+                                        popUpTo(NavRoutes.Accounts) { inclusive = true }
+                                    }
+                                    println("DEBUG: AccountEditScreen - 直接导航到账户管理页面成功")
+                                } catch (e2: Exception) {
+                                    println("DEBUG: AccountEditScreen - 直接导航到账户管理页面失败: ${e2.message}")
+                                    e2.printStackTrace()
+                                }
+                            }
+                        } else {
+                            println("DEBUG: AccountEditScreen - 不满足跳转条件，消息内容: ${result.message}")
                         }
                     }
                 }
@@ -118,9 +137,11 @@ fun AccountEditScreen(
         showFloatingActionButton = false,
         actions = {
             IconButton(onClick = {
+                println("DEBUG: AccountEditScreen - 保存按钮点击")
                 // 保存账户信息
                 val balance = initialBalance.toDoubleOrNull() ?: 0.0
                 val account = if (isEditing) {
+                    println("DEBUG: AccountEditScreen - 编辑现有账户")
                     selectedAccount?.copy(
                         name = accountName,
                         type = accountType,
@@ -130,6 +151,7 @@ fun AccountEditScreen(
                         includeInTotal = includeInTotal
                     )
                 } else {
+                    println("DEBUG: AccountEditScreen - 创建新账户")
                     Account(
                         name = accountName,
                         type = accountType,
@@ -142,11 +164,15 @@ fun AccountEditScreen(
                 }
 
                 account?.let {
+                    println("DEBUG: AccountEditScreen - 账户信息准备完成: ${it.name}, 余额: ${it.balance}")
                     if (isEditing) {
+                        println("DEBUG: AccountEditScreen - 调用 updateAccount")
                         viewModel.updateAccount(it)
                     } else {
+                        println("DEBUG: AccountEditScreen - 调用 addAccount")
                         viewModel.addAccount(it)
                     }
+                    println("DEBUG: AccountEditScreen - 保存操作完成")
                 }
             }) {
                 Icon(
